@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
+
 import 'constants.dart';
 import 'features/MainScreen/presentaion/views/MainScreen_view.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(mediverse());
 }
 
-class MyApp extends StatelessWidget {
+class mediverse extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       home: MainScreen(),
     );
   }
 }
-
