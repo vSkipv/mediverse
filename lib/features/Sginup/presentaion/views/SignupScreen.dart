@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../../../../constants.dart';
+import '../../../Login/presentaion/views/LoginScreen.dart';
+import '../../../MedicalScreen/presentaion/views/MedicalScreen.dart';
+import '../../../MoreInfo/presentaion/views/AccountCreationScreen.dart';
+
 class SignupScreen extends StatefulWidget {
   @override
   _SignupScreenState createState() => _SignupScreenState();
@@ -25,7 +30,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_back_ios, color: Colors.blue),
+                      icon: const Icon(Icons.arrow_back_ios, color: kPrimaryColor),
                       onPressed: () {
                         Navigator.pop(context);
                       },
@@ -36,7 +41,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: Colors.blue,
+                        color: kPrimaryColor,
                       ),
                     ),
                     const Spacer(flex: 2), // Adjusts spacing
@@ -144,9 +149,14 @@ class _SignupScreenState extends State<SignupScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => AccountCreationScreen(),), // Navigate to LoginScreen
+                      );
+                    },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
+                      backgroundColor: kPrimaryColor,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
@@ -154,7 +164,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       ),
                     ),
                     child: const Text(
-                      'NEXT',
+                      'Continue',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -238,12 +248,14 @@ class _SignupScreenState extends State<SignupScreen> {
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.pop(context);
-                        },
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => LoginScreen()), // Navigate to LoginScreen
+                          );                        },
                         child: const Text(
                           'Login',
                           style: TextStyle(
-                            color: Colors.blue,
+                            color: kPrimaryColor,
                             fontSize: 21,
                             fontWeight: FontWeight.bold,
                           ),

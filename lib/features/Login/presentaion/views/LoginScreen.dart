@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../constants.dart';
+import '../../../Sginup/presentaion/views/SignupScreen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -63,7 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
-                              color: Colors.blue,
+                              color: kPrimaryColor,
                             ),
                           ),
                         ),
@@ -187,7 +188,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ElevatedButton(
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
+                      backgroundColor: kPrimaryColor,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
@@ -273,12 +274,17 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => SignupScreen()), // Navigate to LoginScreen
+                          );
+                        },
                         child: const Text(
                           'Sign Up',
                           style: TextStyle(
-                            color: Colors.blue,
-                            fontSize: 14,
+                            color: kPrimaryColor,
+                            fontSize: 21,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
