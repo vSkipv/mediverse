@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../constants.dart';
+import '../../../ForGotPassword/presention/views/ForgotPassword.dart';
+import '../../../HomeScreen/presention/views/HomeScreen.dart';
 import '../../../Login/presentaion/views/LoginScreen.dart';
 import '../../../Sginup/presentaion/views/SignupScreen.dart';
 
@@ -33,6 +35,7 @@ class MainScreen extends StatelessWidget {
                   fontWeight: FontWeight.w800,
                   color: Colors.white,
                   fontFamily: 'Manrope',
+                  fontStyle: FontStyle.normal,
                 ),
               ),
             ),
@@ -94,7 +97,12 @@ class MainScreen extends StatelessWidget {
             ),
             SizedBox(height: 7),
             TextButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MedicalAppHomePage()),
+                );
+              },
               child: Text(
                 'Skip',
                 style: TextStyle(

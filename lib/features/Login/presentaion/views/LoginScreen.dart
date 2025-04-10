@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../constants.dart';
+import '../../../ForGotPassword/presention/views/ForgotPassword.dart';
 import '../../../Sginup/presentaion/views/SignupScreen.dart';
 
 void main() {
@@ -33,7 +34,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _obscureText = true;
-  bool _rememberMe = true;
+  bool _rememberMe = false;
 
   @override
   Widget build(BuildContext context) {
@@ -170,7 +171,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         ],
                       ),
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => EmailOTPScreen()), // Navigate to LoginScreen
+                          );
+
+                        },
                         child: const Text(
                           'Forgot Password?',
                           style: TextStyle(

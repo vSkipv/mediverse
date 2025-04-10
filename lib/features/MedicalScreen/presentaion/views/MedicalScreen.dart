@@ -109,7 +109,7 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
                       child: Container(
                         height: 50,
                         decoration: BoxDecoration(
-                          color: selectedParent == 'Father' ? Colors.black87 : Colors.grey[300]!,
+                          color: selectedParent == 'Father' ? Colors.black87 : Colors.white,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(color: Colors.grey[300]!),
                           boxShadow: selectedParent == 'Father'

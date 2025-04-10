@@ -73,7 +73,7 @@ class _AccountCreationScreenState extends State<AccountCreationScreen> {
                     child: Text(
                       'Create an account',
                       style: TextStyle(
-                        color: Colors.blue,
+                        color: kPrimaryColor,
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
@@ -83,10 +83,10 @@ class _AccountCreationScreenState extends State<AccountCreationScreen> {
                   Positioned(
                     left: 0,
                     child: IconButton(
-                      icon: const Icon(Icons.arrow_back_ios, color: Colors.blue),
+                      icon: const Icon(Icons.arrow_back_ios, color: kPrimaryColor),
                       padding: EdgeInsets.zero,
                       onPressed: () {
-                        // Navigation logic
+                        Navigator.pop(context);
                       },
                     ),
                   ),
@@ -134,7 +134,7 @@ class _AccountCreationScreenState extends State<AccountCreationScreen> {
                       child: Container(
                         height: 50,
                         decoration: BoxDecoration(
-                          color: selectedGender == 'Female' ? Colors.black87 : Colors.grey[300]!,
+                          color: selectedGender == 'Female' ? Colors.black87 : Colors.white,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(color: Colors.grey[300]!),
                           boxShadow: selectedGender == 'Female'
@@ -164,7 +164,7 @@ class _AccountCreationScreenState extends State<AccountCreationScreen> {
                       child: Container(
                         height: 50,
                         decoration: BoxDecoration(
-                          color: selectedGender == 'Male' ? Colors.black87 : Colors.grey[300]!,
+                          color: selectedGender == 'Male' ? Colors.black87 : Colors.white,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(color: Colors.grey[300]!),
                           boxShadow: selectedGender == 'Male'
@@ -230,7 +230,7 @@ class _AccountCreationScreenState extends State<AccountCreationScreen> {
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.grey[300]!),
+                        border: Border.all(color: Colors.grey[200]!),
                         color: Colors.white,
                       ),
                       child: DropdownButtonHideUnderline(

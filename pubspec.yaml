@@ -36,6 +36,8 @@ dependencies:
   cupertino_icons: ^1.0.8
   dio: ^5.8.0+1
   google_sign_in: ^6.2.2
+  flutter_floating_bottom_bar: ^1.2.1+1
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:
@@ -63,6 +65,11 @@ flutter:
   assets:
      - assets/images/mediverse-logo.png
      - assets/images/Google-Logo.png
+     - assets/images/thony.png
+     - assets/images/Vector.png
+     - assets/images/appoi.png
+     - assets/images/Medicine.png
+     - assets/images/hospital.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
