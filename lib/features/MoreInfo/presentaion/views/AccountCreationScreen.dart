@@ -134,7 +134,7 @@ class _AccountCreationScreenState extends State<AccountCreationScreen> {
                       child: Container(
                         height: 50,
                         decoration: BoxDecoration(
-                          color: selectedGender == 'Female' ? Colors.black87 : Colors.white,
+                          color: selectedGender == 'Female' ? kPrimaryColor : Colors.white,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(color: Colors.grey[300]!),
                           boxShadow: selectedGender == 'Female'
@@ -164,7 +164,7 @@ class _AccountCreationScreenState extends State<AccountCreationScreen> {
                       child: Container(
                         height: 50,
                         decoration: BoxDecoration(
-                          color: selectedGender == 'Male' ? Colors.black87 : Colors.white,
+                          color: selectedGender == 'Male' ? kPrimaryColor : Colors.white,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(color: Colors.grey[300]!),
                           boxShadow: selectedGender == 'Male'
@@ -342,7 +342,7 @@ class _AccountCreationScreenState extends State<AccountCreationScreen> {
                         // Logic to add genetic diseases
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFDB6464),
+                        backgroundColor: const Color(0xff0E64D2),
                         minimumSize: const Size(double.infinity, 48),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24),

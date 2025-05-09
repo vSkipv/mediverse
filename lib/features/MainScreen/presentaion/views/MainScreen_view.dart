@@ -104,7 +104,7 @@ class MainScreen extends StatelessWidget {
                 );
               },
               child: Text(
-                'Skip',
+                'continue as Guest',
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.white,

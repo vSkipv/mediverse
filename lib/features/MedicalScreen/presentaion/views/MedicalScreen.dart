@@ -109,7 +109,7 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
                       child: Container(
                         height: 50,
                         decoration: BoxDecoration(
-                          color: selectedParent == 'Father' ? Colors.black87 : Colors.white,
+                          color: selectedParent == 'Father' ? kPrimaryColor : Colors.white,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(color: Colors.grey[300]!),
                           boxShadow: selectedParent == 'Father'
@@ -139,7 +139,7 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
                       child: Container(
                         height: 50,
                         decoration: BoxDecoration(
-                          color: selectedParent == 'Mother' ? Colors.black87 : Colors.white,
+                          color: selectedParent == 'Mother' ? kPrimaryColor : Colors.white,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(color: Colors.grey[300]!),
                           boxShadow: selectedParent == 'Mother'
@@ -282,7 +282,7 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
                     child: ElevatedButton(
                       onPressed: () {},
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFFDB6464),
+                        backgroundColor: Color(0xff0E64D2),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(25),
                         ),
@@ -359,7 +359,7 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
         child: Container(
           height: 40,
           decoration: BoxDecoration(
-            color: selectedBirthType == type ? Colors.black87 : Colors.white,
+            color: selectedBirthType == type ? kPrimaryColor : Colors.white,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: Colors.grey[300]!),
           ),
