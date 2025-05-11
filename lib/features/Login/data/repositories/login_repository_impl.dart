@@ -1,6 +1,5 @@
+import 'package:mediverse/core/network/api/api_service.dart';
 import 'package:mediverse/features/Login/data/repositories/login_repository.dart';
-
-import '../../../../core/network/api/api_service.dart';
 
 class LoginRepositoryImpl implements LoginRepository {
   final ApiService apiService;

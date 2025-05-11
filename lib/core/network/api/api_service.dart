@@ -9,7 +9,15 @@ class ApiService {
   final String _baseUrl = "http//projectmetaverse.runasp.net/api/";
   final Dio _dio;
 
-  ApiService(this._dio);
+  ApiService(this._dio) {
+    _dio.options.baseUrl = _baseUrl;
+    _dio.options.connectTimeout = const Duration(seconds: 30);
+    _dio.options.receiveTimeout = const Duration(seconds: 30);
+    _dio.options.headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+  }
 
   // GET request
   Future<dynamic> get({required String endpoint}) async {
@@ -34,35 +42,29 @@ class ApiService {
   // POST request
   Future<Map<String, dynamic>> post({
     required String endpoint,
-    required dynamic data,
-    bool? token = false,
-    ResponseType? responseType,
-    Function(int sent, int total)? onSendProgress,
+    required Map<String, dynamic> data,
+    bool token = true,
   }) async {
     try {
+      if (token) {
+        // Add token to headers if needed
+        // _dio.options.headers['Authorization'] = 'Bearer $token';
+      }
+
       final response = await _dio.post(
-        "$_baseUrl$endpoint",
+        endpoint,
         data: data,
-        options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-            if (token == true)
-              'Authorization': 'Bearer ${await CachedData.getData(Constant.accessToekn)}',
-          },
-          responseType: responseType ?? ResponseType.json,
-        ),
-        onSendProgress: onSendProgress,
       );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
+      if (response.statusCode == 200) {
         return response.data;
       } else {
-        throw ServerFailuer.fromResponse(response.statusCode, response.data);
+        throw Exception('Request failed with status: ${response.statusCode}');
       }
-    } on DioException catch (dioError) {
-      throw ServerFailuer.fromDioError(dioError);
+    } on DioException catch (e) {
+      throw Exception('Network error: ${e.message}');
     } catch (e) {
-      throw ServerFailuer("Unexpected error: ${e.toString()}");
+      throw Exception('Unexpected error: $e');
     }
   }
 
