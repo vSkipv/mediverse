@@ -58,7 +58,7 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
                   // Centered text
                   const Center(
                     child: Text(
-                      'Select a parent',
+                      'Select parent',
                       style: TextStyle(
                         color: kPrimaryColor,
                         fontSize: 20,
@@ -321,7 +321,9 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        // Logic to authentication page
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: kPrimaryColor,
                         shape: RoundedRectangleBorder(

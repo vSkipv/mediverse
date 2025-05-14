@@ -6,7 +6,7 @@ import '../../utililes/cached_sp.dart';
 
 
 class ApiService {
-  final String _baseUrl = "http//projectmetaverse.runasp.net/api/";
+  final String _baseUrl = "http://projectmetaverse.runasp.net/api/";
   final Dio _dio;
 
   ApiService(this._dio) {

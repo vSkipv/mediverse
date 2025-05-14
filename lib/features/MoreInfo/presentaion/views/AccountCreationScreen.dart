@@ -306,40 +306,20 @@ class _AccountCreationScreenState extends State<AccountCreationScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Do You have any inherited diseases?',
+                      'if you have any genetic diseases go to next page ?',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
                     ),
                     const SizedBox(height: 8),
-                    // TextField instead of static text
-                    TextField(
-                      controller: _diseasesController,
-                      decoration: InputDecoration(
-                        hintText: 'Click here to add any inherited diseases from one of your parents',
-                        hintStyle: const TextStyle(
-                          color: Colors.black54,
-                          fontSize: 14,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey[300]!),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey[300]!),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                        filled: true,
-                        fillColor: Colors.white,
-                      ),
-                      maxLines: 2,
-                    ),
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () {
-                        // Logic to add genetic diseases
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => MedicalInfoScreen()), // Navigate to LoginScreen
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xff0E64D2),
@@ -367,10 +347,7 @@ class _AccountCreationScreenState extends State<AccountCreationScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => MedicalInfoScreen()), // Navigate to LoginScreen
-                    );
+                    // Logic to authentication page
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: kPrimaryColor,
