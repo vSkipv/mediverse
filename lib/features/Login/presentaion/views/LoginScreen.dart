@@ -58,9 +58,9 @@ class _LoginScreenState extends State<LoginScreen> {
         return;
       }
       context.read<LoginCubit>().login(
-            nationalId: nationalId,
-            password: _passwordController.text,
-          );
+        nationalId: nationalId,
+        password: _passwordController.text,
+      );
     }
   }
 
@@ -129,7 +129,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         TextFormField(
                           controller: _nationalIdController,
                           decoration: InputDecoration(
-                            hintText: 'Enter your National ID',
+                            hintText: 'Enter your National ID ',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                               borderSide: BorderSide(color: Colors.grey[300]!),
@@ -142,14 +142,19 @@ class _LoginScreenState extends State<LoginScreen> {
                               horizontal: 16,
                               vertical: 14,
                             ),
+                            counterText: '', // Hide the character counter
                           ),
                           keyboardType: TextInputType.number,
+                          maxLength: 14, // Set maximum input length to 14 digits
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter your National ID';
                             }
                             if (int.tryParse(value) == null) {
                               return 'Please enter a valid National ID';
+                            }
+                            if (value.length > 14) {
+                              return 'National ID cannot exceed 14 digits';
                             }
                             return null;
                           },
@@ -267,12 +272,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: state is LoginLoading
                               ? const CircularProgressIndicator(color: Colors.white)
                               : const Text(
-                                  'Login',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                            'Login',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ],
                     ),
