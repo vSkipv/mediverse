@@ -228,6 +228,7 @@ class HomePage extends StatelessWidget {
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
+                      fontFamily: "GT Sectra Fine",
                     ),
                   ),
                 ],
