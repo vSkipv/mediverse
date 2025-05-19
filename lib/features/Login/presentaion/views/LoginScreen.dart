@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mediverse/constants.dart';
 import 'package:mediverse/features/ForGotPassword/presention/views/ForgotPassword.dart';
+import 'package:mediverse/features/HomeScreen/presention/views/HomeScreen.dart';
 import 'package:mediverse/features/Login/presentaion/controller/cubit/login_cubit.dart';
 import 'package:mediverse/features/Login/presentaion/controller/cubit/login_state.dart';
 import 'package:mediverse/features/MainScreen/presentaion/views/MainScreen_view.dart';
@@ -69,11 +70,13 @@ class _LoginScreenState extends State<LoginScreen> {
     return BlocConsumer<LoginCubit, LoginState>(
       listener: (context, state) {
         if (state is LoginSuccess) {
-          Navigator.pushReplacement(
+          print(state.data);
+          Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) =>  MainScreen()),
+            MaterialPageRoute(builder: (context) =>  MedicalAppHomePage()),
           );
         } else if (state is LoginError) {
+          print(state.message);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.message)),
           );

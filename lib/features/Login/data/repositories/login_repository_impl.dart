@@ -1,6 +1,9 @@
 import 'package:mediverse/core/network/api/api_service.dart';
 import 'package:mediverse/features/Login/data/repositories/login_repository.dart';
 
+import '../../../../constants.dart' as Constant;
+import '../../../../core/utililes/cached_sp.dart';
+
 class LoginRepositoryImpl implements LoginRepository {
   final ApiService apiService;
 
@@ -20,6 +23,10 @@ class LoginRepositoryImpl implements LoginRepository {
         },
         token: false,
       );
+      final token = response['token'];
+      CachedData.saveToken(token);
+
+
       return response;
     } catch (e) {
       throw Exception('Login failed: $e');

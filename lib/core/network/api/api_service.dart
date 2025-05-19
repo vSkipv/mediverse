@@ -22,11 +22,20 @@ class ApiService {
   // GET request
   Future<dynamic> get({required String endpoint}) async {
     try {
-      final token = await CachedData.getData(Constant.accessToekn);
+      final token = await CachedData.getToken();
+      print("token: $token");
+      if (token == null) {
+        throw Exception('Authentication token not found');
+      }
+
       final response = await _dio.get(
-        "$_baseUrl$endpoint",
+        endpoint,
         options: Options(
-          headers: {'Authorization': 'Bearer $token'},
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
         ),
       );
 
@@ -40,20 +49,30 @@ class ApiService {
 
 
   // POST request
-  Future<Map<String, dynamic>> post({
+  Future<dynamic> post({
     required String endpoint,
     required Map<String, dynamic> data,
     bool token = true,
   }) async {
     try {
+      String? authToken;
       if (token) {
-        // Add token to headers if needed
-        // _dio.options.headers['Authorization'] = 'Bearer $token';
+        authToken = await CachedData.getData(Constant.accessToekn);
+        if (authToken == null) {
+          throw Exception('Authentication token not found');
+        }
       }
 
       final response = await _dio.post(
         endpoint,
         data: data,
+        options: Options(
+          headers: {
+            if (token) 'Authorization': 'Bearer $authToken',
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+        ),
       );
 
       if (response.statusCode == 200) {

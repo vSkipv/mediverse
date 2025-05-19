@@ -1,30 +1,89 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../constants.dart' as Constant;
+
 class CachedData {
-  static late SharedPreferences prefs;
+  static SharedPreferences? _prefs;
 
-  static cachInit() async {
-    prefs = await SharedPreferences.getInstance();
+  static Future<void> init() async {
+    _prefs = await SharedPreferences.getInstance();
+    print('SharedPreferences initialized: ${_prefs != null}');
   }
 
-  static void storeData(String key, dynamic value) {
-    if (value is String) {
-      prefs.setString(key, value);
-    } else if (value is int) {
-      prefs.setInt(key, value);
-    } else if (value is double) {
-      prefs.setDouble(key, value);
-    } else {
-      prefs.setBool(key, value);
+  static Future<bool> setData(String key, dynamic value) async {
+    if (_prefs == null) {
+      await init();
     }
+
+    print('Setting data for key: $key, value: $value');
+
+    bool result = false;
+    if (value is String) {
+      result = await _prefs!.setString(key, value);
+    } else if (value is bool) {
+      result = await _prefs!.setBool(key, value);
+    } else if (value is int) {
+      result = await _prefs!.setInt(key, value);
+    } else if (value is double) {
+      result = await _prefs!.setDouble(key, value);
+    } else if (value is List<String>) {
+      result = await _prefs!.setStringList(key, value);
+    }
+
+    print('Data set result: $result');
+    return result;
   }
 
-
-  static dynamic getData(String key) {
-    return prefs.get(key);
+  static Future<dynamic> getData(String key) async {
+    if (_prefs == null) {
+      await init();
+    }
+    final value = _prefs!.get(key);
+    print('Getting data for key: $key, value: $value');
+    return value;
   }
 
-  static void removeData(String key) {
-    prefs.remove(key);
+  static Future<bool> removeData(String key) async {
+    if (_prefs == null) {
+      await init();
+    }
+    final result = await _prefs!.remove(key);
+    print('Removed data for key: $key, result: $result');
+    return result;
+  }
+
+  static Future<bool> clearData() async {
+    if (_prefs == null) {
+      await init();
+    }
+    final result = await _prefs!.clear();
+    print('Cleared all data, result: $result');
+    return result;
+  }
+
+  // Token specific methods
+  static Future<bool> saveToken(String token) async {
+    print('Saving token: $token');
+    final result = await setData(Constant.accessToekn, token);
+    print('Token save result: $result');
+    return result;
+  }
+
+  static Future<String?> getToken() async {
+    final token = await getData(Constant.accessToekn) as String?;
+    print('Getting token: $token');
+    return token;
+  }
+
+  static Future<bool> removeToken() async {
+    print('Removing token');
+    return await removeData(Constant.accessToekn);
+  }
+
+  static Future<bool> hasToken() async {
+    final token = await getToken();
+    final hasToken = token != null && token.isNotEmpty;
+    print('Has token: $hasToken');
+    return hasToken;
   }
 }

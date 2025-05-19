@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:dio/dio.dart';
+import 'package:mediverse/core/network/api/api_service.dart';
 import 'package:mediverse/features/DoctorProfile/presention/views/DoctorProfile.dart';
+import 'package:mediverse/features/AppointmentIcon/presention/cubit/appointment_cubit.dart';
+import 'package:mediverse/features/AppointmentIcon/data/repositories/appointment_repository_impl.dart';
+import 'package:mediverse/features/AppointmentIcon/data/models/doctor.dart';
 
 
 class HealthcareSearchApp extends StatelessWidget {
@@ -22,14 +28,15 @@ class _SearchScreenState extends State<SearchScreen> {
   String? selectedSpecialty;
   String? selectedState;
   String? selectedCity;
+  late AppointmentCubit _appointmentCubit;
 
   // Specialties list
   final List<String> specialties = [
-    'Ophthalmologist | عيون',
-    'Pediatrician | اطفال',
-    'Dentist | اسنان',
-    'Orthopedic| عظام',
-    'Cardiologist | قلب',
+    'Ophthalmologist',
+    'Pediatrician',
+    'Dentist',
+    'Orthopedic',
+    'Cardiologist',
   ];
 
   // States list
@@ -49,6 +56,21 @@ class _SearchScreenState extends State<SearchScreen> {
     'Alx': ['Miami', 'Montaza', 'Sidi Gaber'],
     'Qalyubia': ['Banha', 'Obour',],
   };
+
+  @override
+  void initState() {
+    super.initState();
+    final dio = Dio();
+    final apiService = ApiService(dio);
+    final repository = AppointmentRepositoryImpl(apiService, context);
+    _appointmentCubit = AppointmentCubit(repository: repository);
+  }
+
+  @override
+  void dispose() {
+    _appointmentCubit.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -258,29 +280,7 @@ class _SearchScreenState extends State<SearchScreen> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 24.0),
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Validate form fields
-                    if (selectedSpecialty != null && selectedState != null && selectedCity != null) {
-                      // Navigate to the next page when all fields are filled
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DoctorListScreen(
-                            specialty: selectedSpecialty!,
-                            state: selectedState!,
-                            city: selectedCity!,
-                          ),
-                        ),
-                      );
-                    } else {
-                      // Show error message if any field is empty
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Please complete all fields'),
-                        ),
-                      );
-                    }
-                  },
+                  onPressed: _handleSearch,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF4285F4),
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -306,9 +306,38 @@ class _SearchScreenState extends State<SearchScreen> {
       ),
     );
   }
+
+  void _handleSearch() {
+    if (selectedSpecialty != null && selectedState != null && selectedCity != null) {
+      _appointmentCubit.searchDoctors(
+        specialist: selectedSpecialty!,
+        country: selectedState!,
+        city: selectedCity!,
+      );
+      
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => BlocProvider.value(
+            value: _appointmentCubit,
+            child: DoctorListScreen(
+              specialty: selectedSpecialty!,
+              state: selectedState!,
+              city: selectedCity!,
+            ),
+          ),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please complete all fields'),
+        ),
+      );
+    }
+  }
 }
 
-// New screen to navigate to when Next button is pressed
 class DoctorListScreen extends StatelessWidget {
   final String specialty;
   final String state;
@@ -341,24 +370,60 @@ class DoctorListScreen extends StatelessWidget {
           style: const TextStyle(color: Colors.black87),
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: [
-          _buildLocationHeader('$city, $state'),
-          const SizedBox(height: 16),
-          ...List.generate(
-            5, // Generate 5 sample doctors
-                (index) => _buildDoctorCard(
-              context,
-              name: 'Dr. John Smith ${index + 1}',
-              specialty: specialty,
-              rating: 4.5,
-              reviews: 120 + (index * 10),
-              distance: (1.5 + (index * 0.7)).toStringAsFixed(1),
-              imageUrl: 'assets/images/doctor_placeholder.png',
-            ),
-          ),
-        ],
+      body: BlocBuilder<AppointmentCubit, AppointmentState>(
+        builder: (context, state) {
+          if (state is AppointmentLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          
+          if (state is AppointmentError) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    state.message,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.red,
+                      fontSize: 16,
+                    ),
+                  ),
+                  if (state.isAuthError) ...[
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/login');
+                      },
+                      child: const Text('Go to Login'),
+                    ),
+                  ],
+                ],
+              ),
+            );
+          }
+          
+          if (state is AppointmentLoaded) {
+            return ListView(
+              padding: const EdgeInsets.all(16.0),
+              children: [
+                _buildLocationHeader('$city, $state'),
+                const SizedBox(height: 16),
+                ...state.doctors.map((doctor) => _buildDoctorCard(
+                  context,
+                  name: doctor.name,
+                  specialty: doctor.specialty,
+                  rating: doctor.rating,
+                  reviews: doctor.reviews,
+                  distance: doctor.distance,
+                  imageUrl: doctor.imageUrl ?? 'assets/images/doctor_placeholder.png',
+                )),
+              ],
+            );
+          }
+          
+          return const Center(child: Text('No doctors found'));
+        },
       ),
     );
   }
