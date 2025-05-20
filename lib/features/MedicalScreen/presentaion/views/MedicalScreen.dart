@@ -35,10 +35,10 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
   String? selecteDisease;
 
   final List<String> diseases = [
-    'السكري',
-    'ارتفاع ضغط الدم',
-    'مرض قلبي',
-    'الربو',
+    'Diabetes',
+    'Hypertension',
+    'heart disease',
+    'asthma',
   ];
 
   @override
