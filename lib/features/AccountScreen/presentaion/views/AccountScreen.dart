@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../Diseasespage/presention/views/Diesases.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -75,12 +77,12 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     MenuTile(
-                      title: 'Medical insurance',
+                      title: 'Add genetic Diseases',
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const MedicalInsuranceScreen(),
+                            builder: (context) => const MedicalInformationScreen(),
                           ),
                         );
                       },
@@ -111,7 +113,7 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     MenuTile(
-                      title: 'Support',
+                      title: 'Medical insurance',
                       onTap: () {
                         Navigator.push(
                           context,
