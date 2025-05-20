@@ -287,61 +287,6 @@ class _AccountCreationScreenState extends State<AccountCreationScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              // Inherited Diseases Section
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      spreadRadius: 1,
-                      blurRadius: 2,
-                      offset: const Offset(0, 1),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'if you have any genetic diseases go to next page ?',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => MedicalInfoScreen()), // Navigate to LoginScreen
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xff0E64D2),
-                        minimumSize: const Size(double.infinity, 48),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                      ),
-                      child: const Text(
-                        'Add genetic Diseases',
-                        style: TextStyle(
-                          fontFamily: 'GT Sectra Fine',
-                          color: Colors.white,
-                          fontSize: 19,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Spacer(),
               // Continue Button
               SizedBox(
                 width: double.infinity,
@@ -357,7 +302,7 @@ class _AccountCreationScreenState extends State<AccountCreationScreen> {
                     ),
                   ),
                   child: const Text(
-                    'Continue',
+                    'Create',
                     style: TextStyle(
                       fontFamily: 'GT Sectra Fine',
                       color: Colors.white,

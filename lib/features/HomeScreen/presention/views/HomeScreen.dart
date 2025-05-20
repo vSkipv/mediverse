@@ -195,7 +195,7 @@ class HomePage extends StatelessWidget {
                       Row(
                         children: [
                           CircleAvatar(
-                            backgroundImage: AssetImage('assets/images/thony.png'),
+                            backgroundImage: AssetImage('assets/images/profile.png'),
                           ),
                           SizedBox(width: 10),
                           Column(
