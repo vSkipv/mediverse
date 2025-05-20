@@ -144,7 +144,6 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-
                 // Next Button
                 SizedBox(
                   width: double.infinity,
