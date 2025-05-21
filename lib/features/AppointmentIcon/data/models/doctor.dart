@@ -1,5 +1,6 @@
 class Doctor {
-  final String name;
+  final String firstName;
+  final String lastName;
   final String specialty;
   final double rating;
   final int reviews;
@@ -11,7 +12,8 @@ class Doctor {
   final String? address;
 
   Doctor({
-    required this.name,
+    required this.firstName,
+    required this.lastName,
     required this.specialty,
     required this.rating,
     required this.reviews,
@@ -24,9 +26,25 @@ class Doctor {
   });
 
   factory Doctor.fromJson(Map<String, dynamic> json) {
+    // Handle the case where we might receive a full name or separate first/last names
+    String firstName = json['firstName'] ?? '';
+    String lastName = json['lastName'] ?? '';
+
+    // If we have a name but not firstName/lastName (for backward compatibility)
+    if ((firstName.isEmpty || lastName.isEmpty) && json['name'] != null) {
+      List<String> nameParts = (json['name'] as String).split(' ');
+      if (nameParts.isNotEmpty) {
+        firstName = firstName.isNotEmpty ? firstName : nameParts[0];
+        // Join the rest as last name if there are multiple parts
+        lastName = lastName.isNotEmpty ? lastName :
+        (nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '');
+      }
+    }
+
     return Doctor(
       id: json['id']?.toString(),
-      name: json['name'] ?? '',
+      firstName: firstName,
+      lastName: lastName,
       specialty: json['specialty'] ?? '',
       rating: (json['rating'] ?? 0.0).toDouble(),
       reviews: json['reviews'] ?? 0,
@@ -41,7 +59,8 @@ class Doctor {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'name': name,
+      'firstName': firstName,
+      'lastName': lastName,
       'specialty': specialty,
       'rating': rating,
       'reviews': reviews,
@@ -52,4 +71,7 @@ class Doctor {
       'address': address,
     };
   }
-} 
+
+  // Helper method to get full name
+  String get fullName => '$firstName $lastName'.trim();
+}

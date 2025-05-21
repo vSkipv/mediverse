@@ -314,7 +314,7 @@ class _SearchScreenState extends State<SearchScreen> {
         country: selectedState!,
         city: selectedCity!,
       );
-      
+
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -375,7 +375,7 @@ class DoctorListScreen extends StatelessWidget {
           if (state is AppointmentLoading) {
             return const Center(child: CircularProgressIndicator());
           }
-          
+
           if (state is AppointmentError) {
             return Center(
               child: Column(
@@ -402,7 +402,7 @@ class DoctorListScreen extends StatelessWidget {
               ),
             );
           }
-          
+
           if (state is AppointmentLoaded) {
             return ListView(
               padding: const EdgeInsets.all(16.0),
@@ -411,7 +411,8 @@ class DoctorListScreen extends StatelessWidget {
                 const SizedBox(height: 16),
                 ...state.doctors.map((doctor) => _buildDoctorCard(
                   context,
-                  name: doctor.name,
+                  firstName: doctor.firstName,
+                  lastName: doctor.lastName,
                   specialty: doctor.specialty,
                   rating: doctor.rating,
                   reviews: doctor.reviews,
@@ -421,7 +422,7 @@ class DoctorListScreen extends StatelessWidget {
               ],
             );
           }
-          
+
           return const Center(child: Text('No doctors found'));
         },
       ),
@@ -471,18 +472,22 @@ class DoctorListScreen extends StatelessWidget {
 
   Widget _buildDoctorCard(
       BuildContext context, {
-        required String name,
+        required String firstName,
+        required String lastName,
         required String specialty,
         required double rating,
         required int reviews,
         required String distance,
         required String imageUrl,
       }) {
+    // Combine firstName and lastName for display
+    final String fullName = '$firstName $lastName'.trim();
+
     return GestureDetector(
       onTap: () {
         // Navigate to doctor detail page
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Selected doctor: $name')),
+          SnackBar(content: Text('Selected doctor: $fullName')),
         );
       },
       child: Container(
@@ -524,7 +529,7 @@ class DoctorListScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      name,
+                      fullName,
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
