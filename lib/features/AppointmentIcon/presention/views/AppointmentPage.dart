@@ -29,6 +29,8 @@ class _SearchScreenState extends State<SearchScreen> {
   String? selectedState;
   String? selectedCity;
   late AppointmentCubit _appointmentCubit;
+  final TextEditingController _searchController = TextEditingController();
+  bool _isSearchingByName = false;
 
   // Specialties list
   final List<String> specialties = [
@@ -68,6 +70,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   void dispose() {
+    _searchController.dispose();
     _appointmentCubit.close();
     super.dispose();
   }
@@ -84,7 +87,7 @@ class _SearchScreenState extends State<SearchScreen> {
             children: [
               // Back Button
               Padding(
-                padding: const EdgeInsets.only(top: 20.0, bottom: 40.0),
+                padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
                 child: IconButton(
                   padding: EdgeInsets.zero,
                   alignment: Alignment.centerLeft,
@@ -99,207 +102,212 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
               ),
 
-              // Specialties Section
-              const Padding(
-                padding: EdgeInsets.only(left: 4.0, bottom: 12.0),
-                child: Text(
-                  'Specialties',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF212121),
+              // Search Bar
+
+              if (!_isSearchingByName) ...[
+                // Specialties Section
+                const Padding(
+                  padding: EdgeInsets.only(left: 4.0, bottom: 12.0),
+                  child: Text(
+                    'Specialties',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF212121),
+                    ),
                   ),
                 ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      spreadRadius: 1,
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.1),
+                        spreadRadius: 1,
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: DropdownButtonFormField<String>(
+                    decoration: const InputDecoration(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      border: InputBorder.none,
+                      hintText: 'Select a specialtie',
+                      hintStyle: TextStyle(
+                        color: Color(0xFF9E9E9E),
+                        fontSize: 14,
+                      ),
                     ),
-                  ],
-                ),
-                child: DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                    border: InputBorder.none,
-                    hintText: 'Select a specialtie',
-                    hintStyle: TextStyle(
+                    value: selectedSpecialty,
+                    isExpanded: true,
+                    icon: const Icon(
+                      Icons.keyboard_arrow_down,
                       color: Color(0xFF9E9E9E),
-                      fontSize: 14,
+                    ),
+                    items: specialties.map((String specialty) {
+                      return DropdownMenuItem(
+                        value: specialty,
+                        child: Text(specialty),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedSpecialty = newValue;
+                      });
+                    },
+                  ),
+                ),
+
+                const SizedBox(height: 28),
+
+                // State Section
+                const Padding(
+                  padding: EdgeInsets.only(left: 4.0, bottom: 12.0),
+                  child: Text(
+                    'State',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF212121),
                     ),
                   ),
-                  value: selectedSpecialty,
-                  isExpanded: true,
-                  icon: const Icon(
-                    Icons.keyboard_arrow_down,
-                    color: Color(0xFF9E9E9E),
-                  ),
-                  items: specialties.map((String specialty) {
-                    return DropdownMenuItem(
-                      value: specialty,
-                      child: Text(specialty),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      selectedSpecialty = newValue;
-                    });
-                  },
                 ),
-              ),
-
-              const SizedBox(height: 28),
-
-              // State Section
-              const Padding(
-                padding: EdgeInsets.only(left: 4.0, bottom: 12.0),
-                child: Text(
-                  'State',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF212121),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.1),
+                        spreadRadius: 1,
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
-                ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      spreadRadius: 1,
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
+                  child: DropdownButtonFormField<String>(
+                    decoration: const InputDecoration(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      border: InputBorder.none,
+                      hintText: 'Select a region',
+                      hintStyle: TextStyle(
+                        color: Color(0xFF9E9E9E),
+                        fontSize: 14,
+                      ),
                     ),
-                  ],
-                ),
-                child: DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                    border: InputBorder.none,
-                    hintText: 'Select a region',
-                    hintStyle: TextStyle(
+                    value: selectedState,
+                    isExpanded: true,
+                    icon: const Icon(
+                      Icons.keyboard_arrow_down,
                       color: Color(0xFF9E9E9E),
-                      fontSize: 14,
+                    ),
+                    items: states.map((String state) {
+                      return DropdownMenuItem(
+                        value: state,
+                        child: Text(state),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedState = newValue;
+                        // Reset city when state changes
+                        selectedCity = null;
+                      });
+                    },
+                  ),
+                ),
+
+                const SizedBox(height: 28),
+
+                // City Section
+                const Padding(
+                  padding: EdgeInsets.only(left: 4.0, bottom: 12.0),
+                  child: Text(
+                    'City',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF212121),
                     ),
                   ),
-                  value: selectedState,
-                  isExpanded: true,
-                  icon: const Icon(
-                    Icons.keyboard_arrow_down,
-                    color: Color(0xFF9E9E9E),
-                  ),
-                  items: states.map((String state) {
-                    return DropdownMenuItem(
-                      value: state,
-                      child: Text(state),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      selectedState = newValue;
-                      // Reset city when state changes
-                      selectedCity = null;
-                    });
-                  },
                 ),
-              ),
-
-              const SizedBox(height: 28),
-
-              // City Section
-              const Padding(
-                padding: EdgeInsets.only(left: 4.0, bottom: 12.0),
-                child: Text(
-                  'City',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF212121),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.1),
+                        spreadRadius: 1,
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
-                ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      spreadRadius: 1,
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
+                  child: DropdownButtonFormField<String>(
+                    decoration: const InputDecoration(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      border: InputBorder.none,
+                      hintText: 'Select a region',
+                      hintStyle: TextStyle(
+                        color: Color(0xFF9E9E9E),
+                        fontSize: 14,
+                      ),
                     ),
-                  ],
-                ),
-                child: DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                    border: InputBorder.none,
-                    hintText: 'Select a region',
-                    hintStyle: TextStyle(
+                    value: selectedCity,
+                    isExpanded: true,
+                    icon: const Icon(
+                      Icons.keyboard_arrow_down,
                       color: Color(0xFF9E9E9E),
-                      fontSize: 14,
                     ),
+                    items: selectedState == null
+                        ? []
+                        : citiesByState[selectedState]!.map((String city) {
+                      return DropdownMenuItem(
+                        value: city,
+                        child: Text(city),
+                      );
+                    }).toList(),
+                    onChanged: selectedState == null
+                        ? null
+                        : (String? newValue) {
+                      setState(() {
+                        selectedCity = newValue;
+                      });
+                    },
                   ),
-                  value: selectedCity,
-                  isExpanded: true,
-                  icon: const Icon(
-                    Icons.keyboard_arrow_down,
-                    color: Color(0xFF9E9E9E),
-                  ),
-                  items: selectedState == null
-                      ? []
-                      : citiesByState[selectedState]!.map((String city) {
-                    return DropdownMenuItem(
-                      value: city,
-                      child: Text(city),
-                    );
-                  }).toList(),
-                  onChanged: selectedState == null
-                      ? null
-                      : (String? newValue) {
-                    setState(() {
-                      selectedCity = newValue;
-                    });
-                  },
                 ),
-              ),
+              ],
 
               const Spacer(),
 
               // Next Button with Navigation
-              Padding(
-                padding: const EdgeInsets.only(bottom: 24.0),
-                child: ElevatedButton(
-                  onPressed: _handleSearch,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF4285F4),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+              if (!_isSearchingByName)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 24.0),
+                  child: ElevatedButton(
+                    onPressed: _handleSearch,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF4285F4),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      minimumSize: const Size(double.infinity, 56),
+                      elevation: 0,
                     ),
-                    minimumSize: const Size(double.infinity, 56),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    'Next',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                    child: const Text(
+                      'Next',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
-              ),
             ],
           ),
         ),
@@ -322,7 +330,7 @@ class _SearchScreenState extends State<SearchScreen> {
             value: _appointmentCubit,
             child: DoctorListScreen(
               specialty: selectedSpecialty!,
-              state: selectedState!,
+              ctate: selectedState!,
               city: selectedCity!,
             ),
           ),
@@ -338,17 +346,52 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 }
 
-class DoctorListScreen extends StatelessWidget {
+class DoctorListScreen extends StatefulWidget {
   final String specialty;
-  final String state;
+  final String ctate;
   final String city;
 
   const DoctorListScreen({
     Key? key,
     required this.specialty,
-    required this.state,
+    required this.ctate,
     required this.city,
   }) : super(key: key);
+
+  @override
+  State<DoctorListScreen> createState() => _DoctorListScreenState();
+}
+
+class _DoctorListScreenState extends State<DoctorListScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  bool _isSearchingByName = false;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _handleSearch() {
+    if (_searchController.text.isNotEmpty) {
+      setState(() {
+        _isSearchingByName = true;
+      });
+      context.read<AppointmentCubit>().searchDoctorsByName(_searchController.text);
+    }
+  }
+
+  void _resetSearch() {
+    setState(() {
+      _isSearchingByName = false;
+      _searchController.clear();
+    });
+    context.read<AppointmentCubit>().searchDoctors(
+      specialist: widget.specialty,
+      country: widget.ctate,
+      city: widget.city,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -366,7 +409,7 @@ class DoctorListScreen extends StatelessWidget {
           },
         ),
         title: Text(
-          '$specialty Doctors',
+          '${widget.specialty} Doctors',
           style: const TextStyle(color: Colors.black87),
         ),
       ),
@@ -404,21 +447,103 @@ class DoctorListScreen extends StatelessWidget {
           }
 
           if (state is AppointmentLoaded) {
-            return ListView(
-              padding: const EdgeInsets.all(16.0),
+            return Column(
               children: [
-                _buildLocationHeader('$city, $state'),
+                // Search Bar
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.1),
+                          spreadRadius: 1,
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _searchController,
+                            decoration: const InputDecoration(
+                              hintText: 'Search doctors by name',
+                              prefixIcon: Icon(Icons.search, color: Color(0xFF9E9E9E)),
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            ),
+                            onSubmitted: (_) => _handleSearch(),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.search, color: Color(0xFF4285F4)),
+                          onPressed: _handleSearch,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // Location Header
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: _buildLocationHeader('${widget.city}, ${widget.ctate}'),
+                ),
                 const SizedBox(height: 16),
-                ...state.doctors.map((doctor) => _buildDoctorCard(
-                  context,
-                  firstName: doctor.firstName,
-                  lastName: doctor.lastName,
-                  specialty: doctor.specialty,
-                  rating: doctor.rating,
-                  reviews: doctor.reviews,
-                  distance: doctor.distance,
-                  imageUrl: doctor.imageUrl ?? 'assets/images/doctor_placeholder.png',
-                )),
+                // Reset Search Button (shown when searching by name or no results)
+                if (_isSearchingByName || state.doctors.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: ElevatedButton.icon(
+                      onPressed: _resetSearch,
+                      icon: const Icon(Icons.refresh, color: Colors.white),
+                      label: const Text('Reset to Original Search'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF4285F4),
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ),
+                const SizedBox(height: 16),
+                // No Results Message
+                if (state.doctors.isEmpty)
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Text(
+                        'No doctors found matching your search criteria',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                // Doctors List
+                if (state.doctors.isNotEmpty)
+                  Expanded(
+                    child: ListView(
+                      padding: const EdgeInsets.all(16.0),
+                      children: state.doctors.map((doctor) => _buildDoctorCard(
+                        context,
+                        firstName: doctor.firstName,
+                        lastName: doctor.lastName,
+                        specialty: doctor.specialty,
+                        rating: doctor.rating,
+                        reviews: doctor.reviews,
+                        distance: doctor.distance,
+                        imageUrl: doctor.imageUrl ?? 'assets/images/doctor_placeholder.png',
+                        id: doctor.id!
+                      )).toList(),
+                    ),
+                  ),
               ],
             );
           }
@@ -479,6 +604,7 @@ class DoctorListScreen extends StatelessWidget {
         required int reviews,
         required String distance,
         required String imageUrl,
+        required int id,
       }) {
     // Combine firstName and lastName for display
     final String fullName = '$firstName $lastName'.trim();
@@ -486,8 +612,13 @@ class DoctorListScreen extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         // Navigate to doctor detail page
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Selected doctor: $fullName')),
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AppointmentScreen2(
+              doctorId: 1, // Replace with actual doctor ID from the API
+            ),
+          ),
         );
       },
       child: Container(
@@ -583,7 +714,7 @@ class DoctorListScreen extends StatelessWidget {
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => AppointmentScreen2()), // Navigate to LoginScreen
+                                MaterialPageRoute(builder: (context) => AppointmentScreen2(doctorId:id ,)), // Navigate to LoginScreen
                               );
                             },
                             style: OutlinedButton.styleFrom(
@@ -611,17 +742,3 @@ class DoctorListScreen extends StatelessWidget {
   }
 }
 
-// For testing purposes only - remove when integrating with your main app
-void main() {
-  runApp(
-    MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Healthcare Provider Search',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: const Color(0xFFF5F5F5),
-      ),
-      home: const HealthcareSearchApp(),
-    ),
-  );
-}

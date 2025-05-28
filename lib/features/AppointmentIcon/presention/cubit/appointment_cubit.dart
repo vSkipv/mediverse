@@ -1,7 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mediverse/features/AppointmentIcon/data/models/doctor.dart';
 import 'package:mediverse/features/AppointmentIcon/data/models/search_request.dart';
-import 'package:mediverse/features/AppointmentIcon/domain/repositories/appointment_repository.dart';
+
+import '../../data/repositories/appointment_repository.dart';
 
 // States
 abstract class AppointmentState {}
@@ -47,6 +48,16 @@ class AppointmentCubit extends Cubit<AppointmentState> {
       final errorMessage = e.toString();
       final isAuthError = errorMessage.contains('Please login to continue');
       emit(AppointmentError(errorMessage, isAuthError: isAuthError));
+    }
+  }
+
+  Future<void> searchDoctorsByName(String name) async {
+    emit(AppointmentLoading());
+    try {
+      final doctors = await repository.searchDoctorsByName(name);
+      emit(AppointmentLoaded(doctors));
+    } catch (e) {
+      emit(AppointmentError(e.toString()));
     }
   }
 } 

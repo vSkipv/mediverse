@@ -6,7 +6,7 @@ class Doctor {
   final int reviews;
   final String distance;
   final String? imageUrl;
-  final String? id;
+  final int? id;
   final String? email;
   final String? phone;
   final String? address;
@@ -42,7 +42,7 @@ class Doctor {
     }
 
     return Doctor(
-      id: json['id']?.toString(),
+      id: json['id'],
       firstName: firstName,
       lastName: lastName,
       specialty: json['specialty'] ?? '',

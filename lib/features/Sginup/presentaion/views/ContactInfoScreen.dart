@@ -119,10 +119,9 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
               );
               
               // Navigate to login screen and clear the stack
-              Navigator.pushAndRemoveUntil(
+              Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => LoginScreen()),
-                (route) => false,
               );
             } else if (state is RegisterError) {
               print('state.message: ${state.message}');
