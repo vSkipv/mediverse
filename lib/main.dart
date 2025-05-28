@@ -7,6 +7,7 @@ import 'constants.dart';
 import 'features/Login/di/login_di.dart';
 import 'features/Login/presentaion/views/LoginScreen.dart';
 import 'features/MainScreen/presentaion/views/MainScreen_view.dart';
+import 'features/Sginup/di/register_di.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,6 +25,8 @@ class Mediverse extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         ...LoginDI.getProviders(),
+        ...RegisterDI.getProviders(),
+
       ],
       child: MaterialApp(
         title: 'Mediverse',

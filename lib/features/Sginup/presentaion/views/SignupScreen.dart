@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../constants.dart';
 import '../../../Login/presentaion/views/LoginScreen.dart';
-import '../../../MedicalScreen/presentaion/views/MedicalScreen.dart';
-import '../../../MoreInfo/presentaion/views/AccountCreationScreen.dart';
+import '../controller/cubit/register_cubit.dart';
+import '../controller/cubit/register_state.dart';
+import 'ContactInfoScreen.dart';
 
 class SignupScreen extends StatefulWidget {
   @override
@@ -12,6 +14,53 @@ class SignupScreen extends StatefulWidget {
 
 class _SignupScreenState extends State<SignupScreen> {
   bool _obscureText = true;
+  
+  // Form controllers
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _nationalIdController = TextEditingController();
+  String _selectedGender = 'Male';
+
+  @override
+  void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _nationalIdController.dispose();
+    super.dispose();
+  }
+
+  void _handleNext() {
+    if (_firstNameController.text.isEmpty ||
+        _lastNameController.text.isEmpty ||
+        _emailController.text.isEmpty ||
+        _passwordController.text.isEmpty ||
+        _nationalIdController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all fields')),
+      );
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ContactInfoScreen(
+          personalInfo: {
+            'nationalId': int.parse(_nationalIdController.text),
+            'email': _emailController.text,
+            'firstName': _firstNameController.text,
+            'lastName': _lastNameController.text,
+            'gender': _selectedGender,
+            'password': _passwordController.text,
+          },
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +93,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         color: kPrimaryColor,
                       ),
                     ),
-                    const Spacer(flex: 2), // Adjusts spacing
+                    const Spacer(flex: 2),
                   ],
                 ),
                 const SizedBox(height: 5),
@@ -61,31 +110,45 @@ class _SignupScreenState extends State<SignupScreen> {
                 ),
                 const SizedBox(height: 30),
 
+                // National ID Field
+                TextField(
+                  controller: _nationalIdController,
+                  decoration: InputDecoration(
+                    hintText: 'National ID',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 15),
+
                 // Name Fields
                 Row(
                   children: [
                     Expanded(
                       child: TextField(
+                        controller: _firstNameController,
                         decoration: InputDecoration(
                           hintText: 'First Name',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                         ),
                       ),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: TextField(
+                        controller: _lastNameController,
                         decoration: InputDecoration(
                           hintText: 'Last Name',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                         ),
                       ),
                     ),
@@ -93,44 +156,55 @@ class _SignupScreenState extends State<SignupScreen> {
                 ),
                 const SizedBox(height: 15),
 
+                // Gender Dropdown
+                DropdownButtonFormField<String>(
+                  value: _selectedGender,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  ),
+                  items: ['Male', 'Female'].map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    if (newValue != null) {
+                      setState(() {
+                        _selectedGender = newValue;
+                      });
+                    }
+                  },
+                ),
+                const SizedBox(height: 15),
+
                 // Email Field
                 TextField(
+                  controller: _emailController,
                   decoration: InputDecoration(
                     hintText: 'Enter Your Email',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   ),
                   keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(height: 15),
 
-                // Phone Number Field
-                TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Enter Your Phone Number',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  ),
-                  keyboardType: TextInputType.phone,
-                ),
-                const SizedBox(height: 15),
-
                 // Password Field
                 TextField(
+                  controller: _passwordController,
                   obscureText: _obscureText,
                   decoration: InputDecoration(
                     hintText: 'Enter Your Password',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscureText ? Icons.visibility_off : Icons.visibility,
@@ -144,16 +218,12 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
+
                 // Next Button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => AccountCreationScreen(),), // Navigate to LoginScreen
-                      );
-                    },
+                    onPressed: _handleNext,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: kPrimaryColor,
                       foregroundColor: Colors.white,
@@ -163,7 +233,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       ),
                     ),
                     child: const Text(
-                      'Continue',
+                      'Next',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -208,11 +278,11 @@ class _SignupScreenState extends State<SignupScreen> {
                   child: OutlinedButton.icon(
                     onPressed: () {},
                     icon: Image.asset(
-                    'assets/images/Google-logo.svg.png',
+                      'assets/images/Google-logo.svg.png',
                       height: 24,
                       width: 24,
                       errorBuilder: (context, error, stackTrace) =>
-                      const Icon(Icons.g_mobiledata, size: 44),
+                          const Icon(Icons.g_mobiledata, size: 44),
                     ),
                     label: const Text(
                       'Signup with Google',
@@ -249,8 +319,9 @@ class _SignupScreenState extends State<SignupScreen> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => LoginScreen()), // Navigate to LoginScreen
-                          );                        },
+                            MaterialPageRoute(builder: (context) => LoginScreen()),
+                          );
+                        },
                         child: const Text(
                           'Login',
                           style: TextStyle(

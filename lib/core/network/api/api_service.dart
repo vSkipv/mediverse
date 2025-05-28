@@ -63,6 +63,9 @@ class ApiService {
         }
       }
 
+      print('Sending request to: $endpoint');
+      print('Request data: $data');
+
       final response = await _dio.post(
         endpoint,
         data: data,
@@ -72,17 +75,56 @@ class ApiService {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
           },
+          validateStatus: (status) {
+            return status! < 500;
+          },
         ),
       );
 
-      if (response.statusCode == 200) {
+      print('Response status: ${response.statusCode}');
+      print('Response data: ${response.data}');
+
+      if (response.statusCode! >= 200 && response.statusCode! < 300) {
         return response.data;
       } else {
-        throw Exception('Request failed with status: ${response.statusCode}');
+        String errorMessage;
+        if (response.data is Map) {
+          errorMessage = response.data['message'] ?? 'Request failed with status: ${response.statusCode}';
+        } else if (response.data is String) {
+          errorMessage = response.data;
+        } else {
+          errorMessage = 'Request failed with status: ${response.statusCode}';
+        }
+        
+        throw DioException(
+          requestOptions: response.requestOptions,
+          response: response,
+          error: errorMessage,
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      print('DioError: ${e.message}');
+      print('DioError Response: ${e.response?.data}');
+      
+      if (e.response?.data != null) {
+        String errorMessage;
+        if (e.response?.data is Map) {
+          errorMessage = e.response?.data['message'] ?? e.message ?? 'Unknown error occurred';
+        } else if (e.response?.data is String) {
+          errorMessage = e.response?.data;
+        } else {
+          errorMessage = e.message ?? 'Unknown error occurred';
+        }
+        
+        throw DioException(
+          requestOptions: e.requestOptions,
+          response: e.response,
+          error: errorMessage,
+        );
+      }
+      throw e;
     } catch (e) {
+      print('Unexpected error: $e');
       throw Exception('Unexpected error: $e');
     }
   }
