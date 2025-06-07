@@ -201,19 +201,6 @@ class HomePage extends StatelessWidget {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                'Anthony Ehab',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                'Patient',
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                ),
-                              ),
                             ],
                           ),
                         ],

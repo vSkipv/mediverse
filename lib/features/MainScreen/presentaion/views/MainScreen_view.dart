@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../constants.dart';
+import '../../../Admin-MainScreen/presentaion/views/AdminScreen_view.dart';
 import '../../../ForGotPassword/presention/views/ForgotPassword.dart';
 import '../../../HomeScreen/presention/views/HomeScreen.dart';
 import '../../../Login/presentaion/views/LoginScreen.dart';
@@ -100,7 +101,7 @@ class MainScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => MedicalAppHomePage()),
+                  MaterialPageRoute(builder: (context) => AdminScreen()),
                 );
               },
               child: Text(
