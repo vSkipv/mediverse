@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mediverse/constants.dart';
+import 'package:mediverse/features/Admin-MainScreen/presentaion/views/AdminScreen_view.dart';
 import 'package:mediverse/features/ForGotPassword/presention/views/ForgotPassword.dart';
 import 'package:mediverse/features/HomeScreen/presention/views/HomeScreen.dart';
 import 'package:mediverse/features/Login/presentaion/controller/cubit/login_cubit.dart';
@@ -73,7 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
           print(state.data);
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) =>  MedicalAppHomePage()),
+            MaterialPageRoute(builder: (context) =>  AdminScreen()),
           );
         } else if (state is LoginError) {
           print(state.message);

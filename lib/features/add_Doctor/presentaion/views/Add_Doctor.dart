@@ -1,4 +1,12 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mediverse/features/add_Doctor/data/model/new_doctor.dart';
+import 'package:mediverse/features/add_Doctor/data/repositories/new_doctor_repo_imp.dart';
+import 'package:mediverse/features/add_Doctor/presentaion/controller/new_doctor_cubit.dart';
+import 'package:mediverse/features/add_Doctor/presentaion/controller/new_doctor_state.dart';
+
+import '../../../../core/network/api/api_service.dart';
 
 class AddDoctorScreen extends StatefulWidget {
   const AddDoctorScreen({Key? key}) : super(key: key);
@@ -8,6 +16,7 @@ class AddDoctorScreen extends StatefulWidget {
 }
 
 class _AddDoctorScreenState extends State<AddDoctorScreen> {
+  late NewDoctorCubit newDoctorCubit;
   final _formKey = GlobalKey<FormState>();
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
@@ -34,114 +43,151 @@ class _AddDoctorScreenState extends State<AddDoctorScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    final dio = Dio();
+    final apiService = ApiService(dio);
+    final repo = NewDoctorRepoImp(apiService: apiService);
+    newDoctorCubit = NewDoctorCubit(repo);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios,
-            color: Colors.blue,
-            size: 20,
+    return BlocProvider(
+      create: (context) => newDoctorCubit,
+      child: Scaffold(
+        backgroundColor: Colors.grey[50],
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(
+              Icons.arrow_back_ios,
+              color: Colors.blue,
+              size: 20,
+            ),
+            onPressed: () => Navigator.pop(context),
           ),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'Add Doctor',
-          style: TextStyle(
-            color: Colors.blue,
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
+          title: const Text(
+            'Add Doctor',
+            style: TextStyle(
+              color: Colors.blue,
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+            ),
           ),
+          centerTitle: true,
         ),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 20),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: BlocConsumer<NewDoctorCubit, NewDoctorState>(
+            listener: (context, state) {
+              if (state is NewDoctorSuccessState) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Doctor Added Successfully"),
+                    backgroundColor: Colors.green,
 
-              // First Name and Last Name Row
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildTextField(
-                      controller: _firstNameController,
-                      hintText: 'First Name',
-                    ),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _buildTextField(
-                      controller: _lastNameController,
-                      hintText: 'Last Name',
-                    ),
+                );
+              } else if (state is NewDoctorErrorState) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text("Failed to add doctor ${state.message}"),
+                    backgroundColor: Colors.redAccent,
+
                   ),
-                ],
-              ),
+                );
+              }
+            },
+            builder: (context, state) {
+              return Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 20),
 
-              const SizedBox(height: 20),
-
-              // Password Field
-              _buildPasswordField(),
-
-              const SizedBox(height: 20),
-
-              // City and Country Row
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildTextField(
-                      controller: _cityController,
-                      hintText: 'City',
+                    // First Name and Last Name Row
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextField(
+                            controller: _firstNameController,
+                            hintText: 'First Name',
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _buildTextField(
+                            controller: _lastNameController,
+                            hintText: 'Last Name',
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _buildTextField(
-                      controller: _countryController,
-                      hintText: 'Country',
+
+                    const SizedBox(height: 20),
+
+                    // Password Field
+                    _buildPasswordField(),
+
+                    const SizedBox(height: 20),
+
+                    // City and Country Row
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextField(
+                            controller: _cityController,
+                            hintText: 'City',
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _buildTextField(
+                            controller: _countryController,
+                            hintText: 'Country',
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
 
-              const SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-              // Specialist Field
-              _buildTextField(
-                controller: _specialistController,
-                hintText: 'Specialist',
-              ),
+                    // Specialist Field
+                    _buildTextField(
+                      controller: _specialistController,
+                      hintText: 'Specialist',
+                    ),
 
-              const SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-              // Full Address Field
-              _buildTextField(
-                controller: _addressController,
-                hintText: 'Full Address',
-              ),
+                    // Full Address Field
+                    _buildTextField(
+                      controller: _addressController,
+                      hintText: 'Full Address',
+                    ),
 
-              const SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-              // Description Field
-              _buildTextField(
-                controller: _descriptionController,
-                hintText: 'description',
-                maxLines: 4,
-              ),
+                    // Description Field
+                    _buildTextField(
+                      controller: _descriptionController,
+                      hintText: 'description',
+                      maxLines: 4,
+                    ),
 
-              const SizedBox(height: 40),
+                    const SizedBox(height: 40),
 
-              // Submit Button
-              _buildSubmitButton(),
-            ],
+                    // Submit Button
+                    _buildSubmitButton(),
+                  ],
+                ),
+              );
+            },
           ),
         ),
       ),
@@ -291,29 +337,18 @@ class _AddDoctorScreenState extends State<AddDoctorScreen> {
 
   void _submitForm() {
     // Create doctor data map
-    final doctorData = {
-      'firstName': _firstNameController.text,
-      'lastName': _lastNameController.text,
-      'password': _passwordController.text,
-      'city': _cityController.text,
-      'country': _countryController.text,
-      'specialist': _specialistController.text,
-      'address': _addressController.text,
-      'description': _descriptionController.text,
-    };
+    final doctorData = NewDoctor(
+        firstName: _firstNameController.text,
+        lastName: _lastNameController.text,
+        description: _descriptionController.text,
+        city: _cityController.text,
+        country: _countryController.text,
+        fullAdress: _addressController.text,
+        password: _passwordController.text,
+        specialist: _specialistController.text);
 
-    // Show success message
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Doctor added successfully!'),
-        backgroundColor: Colors.green,
-      ),
-    );
-
+    newDoctorCubit.addNewDoc(newDoc: doctorData);
     // Print data for debugging
-    print('Doctor Data: $doctorData');
-
-    // Navigate back or to next screen
-    Navigator.pop(context);
+    print('Doctor : $doctorData');
   }
 }
