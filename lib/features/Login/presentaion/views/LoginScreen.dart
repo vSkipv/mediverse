@@ -72,10 +72,21 @@ class _LoginScreenState extends State<LoginScreen> {
       listener: (context, state) {
         if (state is LoginSuccess) {
           print(state.data);
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) =>  AdminScreen()),
-          );
+          // Check the role from the response data
+          final role = state.data['role'] as String;
+          
+          // Navigate based on role
+          if (role == 'Admin') {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => AdminScreen()),
+            );
+          } else {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => MedicalAppHomePage()),
+            );
+          }
         } else if (state is LoginError) {
           print(state.message);
           ScaffoldMessenger.of(context).showSnackBar(

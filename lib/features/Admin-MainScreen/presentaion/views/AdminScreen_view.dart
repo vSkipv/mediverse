@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:dio/dio.dart';
+import '../../../../core/network/api/api_service.dart';
+import '../../data/model/doctor_model.dart';
+import '../../data/repositories/doctors_repository_impl.dart';
+import '../controller/cubit/doctors_cubit.dart';
+import '../controller/cubit/doctors_state.dart';
 import '../../../add_Doctor/presentaion/views/Add_Doctor.dart';
+import 'DoctorsListPage.dart';
 
 void main() {
   runApp(MyApp());
@@ -36,7 +43,7 @@ class AdminScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Hi Admin1',
+                    'Hi Admin',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w600,
@@ -95,7 +102,7 @@ class AdminScreen extends StatelessWidget {
                       ),
                       child: Center(
                         child: Text(
-                          'Admin View',
+                          'Admin ',
                           style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
@@ -121,12 +128,15 @@ class AdminScreen extends StatelessWidget {
 
                     SizedBox(height: 20),
 
-                    // Remove Doctor Button
+                    // View Doctors Button
                     _buildActionButton(
-                      icon: Icons.person_remove,
-                      text: 'Remove Doctor',
+                      icon: Icons.people,
+                      text: 'View Doctors',
                       onTap: () {
-                        print('Remove Doctor tapped');
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => DoctorsListPage()),
+                        );
                       },
                     ),
                   ],
