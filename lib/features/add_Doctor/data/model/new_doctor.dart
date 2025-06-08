@@ -48,7 +48,7 @@ class NewDoctor{
      "description": description,
      "city": city,
      "country": country,
-     "fullAdress": fullAdress,
+     "fullAddress": fullAdress,
      "password": password,
      "specialist": specialist
    };

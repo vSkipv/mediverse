@@ -26,7 +26,7 @@ class DoctorsRepositoryImpl implements DoctorsRepository {
   Future<void> deleteDoctor(int id) async {
     try {
       await apiService.delete(
-        endpoint: 'Doctors/id=$id',
+        endpoint: 'Doctors/$id',
       );
       print("success delete doctor");
     } catch (e) {

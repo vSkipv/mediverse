@@ -58,16 +58,30 @@ class DoctorsListContent extends StatelessWidget {
             if (state is DoctorsLoading) {
               return Center(child: CircularProgressIndicator());
             } else if (state is DoctorsLoaded) {
-              return ListView.builder(
-                padding: EdgeInsets.all(16),
-                itemCount: state.doctors.length,
-                itemBuilder: (context, index) {
-                  final doctor = state.doctors[index];
-                  return _buildDoctorCard(context, doctor);
-                },
-              );
+              if(state.doctors.isNotEmpty) {
+                return ListView.builder(
+                  padding: EdgeInsets.all(16),
+                  itemCount: state.doctors.length,
+                  itemBuilder: (context, index) {
+                    final doctor = state.doctors[index];
+                    return _buildDoctorCard(context, doctor);
+                  },
+                );
+              }else{
+                return Center(
+                  child: Text(
+                    'No doctors available',
+                    style: TextStyle(fontSize: 18, color: Colors.grey),
+                  ),
+                );
+              }
             } else if (state is DoctorsError) {
-              return Center(child: Text(state.message));
+              return Center(
+                child: Text(
+                  'Error: ${state.message}',
+                  style: TextStyle(fontSize: 18, color: Colors.red),
+                ),
+              );
             }
             return SizedBox();
           },

@@ -18,7 +18,7 @@ class LoginRepositoryImpl implements LoginRepository {
       final response = await apiService.post(
         endpoint: 'login',
         data: {
-          'nationalId': nationalId,
+          'id': nationalId,
           'password': password,
         },
         token: false,
