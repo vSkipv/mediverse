@@ -117,6 +117,7 @@ class DoctorsListContent extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 8),
+            Text('ID: ${doctor.id}' , style: TextStyle(fontSize: 18, color: Colors.black , fontWeight: FontWeight.bold),),
             Text('Specialist: ${doctor.specialist}'),
             Text('Location: ${doctor.city}, ${doctor.country}'),
           ],

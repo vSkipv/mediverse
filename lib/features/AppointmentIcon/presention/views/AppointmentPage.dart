@@ -377,7 +377,7 @@ class _DoctorListScreenState extends State<DoctorListScreen> {
       setState(() {
         _isSearchingByName = true;
       });
-      context.read<AppointmentCubit>().searchDoctorsByName(_searchController.text);
+      context.read<AppointmentCubit>().searchDoctorsByName(_searchController.text , widget.city, widget.ctate, widget.specialty);
     }
   }
 
@@ -420,6 +420,91 @@ class _DoctorListScreenState extends State<DoctorListScreen> {
           }
 
           if (state is AppointmentError) {
+            // Only show error UI for actual errors, not for no results
+            if (state.message.contains('No doctors found')) {
+              return Column(
+                children: [
+                  // Search Bar
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.1),
+                            spreadRadius: 1,
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _searchController,
+                              decoration: const InputDecoration(
+                                hintText: 'Search doctors by name',
+                                prefixIcon: Icon(Icons.search, color: Color(0xFF9E9E9E)),
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                              ),
+                              onSubmitted: (_) => _handleSearch(),
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.search, color: Color(0xFF4285F4)),
+                            onPressed: _handleSearch,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Location Header
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: _buildLocationHeader('${widget.city}, ${widget.ctate}'),
+                  ),
+                  const SizedBox(height: 16),
+                  // Reset Search Button
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: ElevatedButton.icon(
+                      onPressed: _resetSearch,
+                      icon: const Icon(Icons.refresh, color: Colors.white),
+                      label: const Text('Reset to Original Search'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF4285F4),
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // No Results Message
+                  const Expanded(
+                    child: Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Text(
+                          'No doctors found matching your search criteria',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }
+            // Show error UI for actual errors
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -493,8 +578,8 @@ class _DoctorListScreenState extends State<DoctorListScreen> {
                   child: _buildLocationHeader('${widget.city}, ${widget.ctate}'),
                 ),
                 const SizedBox(height: 16),
-                // Reset Search Button (shown when searching by name or no results)
-                if (_isSearchingByName || state.doctors.isEmpty)
+                // Reset Search Button (shown when searching by name)
+                if (_isSearchingByName)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: ElevatedButton.icon(
@@ -513,15 +598,17 @@ class _DoctorListScreenState extends State<DoctorListScreen> {
                 const SizedBox(height: 16),
                 // No Results Message
                 if (state.doctors.isEmpty)
-                  const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: Text(
-                        'No doctors found matching your search criteria',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontSize: 16,
+                  const Expanded(
+                    child: Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Text(
+                          'No doctors found matching your search criteria',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 16,
+                          ),
                         ),
                       ),
                     ),

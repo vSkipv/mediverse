@@ -51,13 +51,17 @@ class AppointmentCubit extends Cubit<AppointmentState> {
     }
   }
 
-  Future<void> searchDoctorsByName(String name) async {
+  Future<void> searchDoctorsByName(String name, String city, String country, String specialist) async {
     emit(AppointmentLoading());
     try {
-      final doctors = await repository.searchDoctorsByName(name);
+      final doctors = await repository.searchDoctorsByName(name, city, country, specialist);
       emit(AppointmentLoaded(doctors));
     } catch (e) {
-      emit(AppointmentError(e.toString()));
+      if (e.toString().contains('No doctors found')) {
+        emit(AppointmentLoaded([])); // Emit empty list for no results
+      } else {
+        emit(AppointmentError(e.toString()));
+      }
     }
   }
 } 

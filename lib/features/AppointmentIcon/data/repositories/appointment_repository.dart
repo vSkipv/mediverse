@@ -5,5 +5,5 @@ abstract class AppointmentRepository {
   Future<List<Doctor>> searchDoctors(
     SearchRequest request,
   );
-  Future<List<Doctor>> searchDoctorsByName(String name);
+  Future<List<Doctor>> searchDoctorsByName(String name , String city , String country , String specialist);
 }

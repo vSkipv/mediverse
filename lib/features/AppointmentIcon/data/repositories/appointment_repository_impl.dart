@@ -16,7 +16,7 @@ class AppointmentRepositoryImpl implements AppointmentRepository {
   @override
   Future<List<Doctor>> searchDoctors(SearchRequest request) async {
     try {
-      final response = await _apiService.post(
+      final response = await _apiService.get(
         endpoint: '/Doctors/search',
         data: {
           'specialist': request.specialist,
@@ -24,6 +24,7 @@ class AppointmentRepositoryImpl implements AppointmentRepository {
           'city': request.city,
         },
       );
+      print(response);
 
       if (response is List) {
         return response.map((json) => Doctor.fromJson(json)).toList();
@@ -36,18 +37,24 @@ class AppointmentRepositoryImpl implements AppointmentRepository {
   }
 
   @override
-  Future<List<Doctor>> searchDoctorsByName(String name) async {
+  Future<List<Doctor>> searchDoctorsByName(String name, String city, String country, String specialist) async {
     try {
       final response = await _apiService.get(
-        endpoint: '/Doctors/search-by-name?name=$name',
+        endpoint: '/Doctors/search-by-name?name=$name&city=$city&country=$country&specialist=$specialist',
       );
 
       if (response is List) {
+        if (response.isEmpty) {
+          return [];
+        }
         return response.map((json) => Doctor.fromJson(json)).toList();
       } else {
         throw Exception('Invalid response format');
       }
     } catch (e) {
+      if (e.toString().contains('No doctors found')) {
+        return [];
+      }
       throw Exception('Failed to search doctors by name: $e');
     }
   }

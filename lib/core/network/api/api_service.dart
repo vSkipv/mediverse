@@ -20,7 +20,7 @@ class ApiService {
   }
 
   // GET request
-  Future<dynamic> get({required String endpoint}) async {
+  Future<dynamic> get({required String endpoint, Map<String, dynamic>? data}) async {
     try {
       final token = await CachedData.getToken();
       print("token: $token");
@@ -30,6 +30,7 @@ class ApiService {
 
       final response = await _dio.get(
         endpoint,
+        data: data?.isNotEmpty == true ? data : null,
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',

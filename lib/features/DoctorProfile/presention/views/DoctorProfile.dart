@@ -3,9 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
 import 'package:mediverse/core/network/api/api_service.dart';
+import 'package:mediverse/core/utililes/cached_sp.dart';
 import 'package:mediverse/features/DoctorProfile/data/repositories/doctor_profile_repository_impl.dart';
+import 'package:mediverse/features/DoctorProfile/data/repositories/reservation_repository_impl.dart';
 import '../../../../constants.dart';
 import '../cubit/doctor_profile_cubit.dart';
+import '../cubit/reservation_cubit.dart';
+import '../cubit/reservation_state.dart';
+import '../../../../constants.dart' as Constant;
 
 
 class AppointmentScreen2 extends StatefulWidget {
@@ -25,6 +30,7 @@ class _AppointmentScreenState extends State<AppointmentScreen2> {
   int selectedDateIndex = 0;
   DateTime selectedDate = DateTime.now();
   late DoctorProfileCubit _doctorProfileCubit;
+  late ReservationCubit _reservationCubit;
 
   final List<String> timeSlots = ['10.00 AM', '11.00 AM', '12.00 PM'];
   List<String> dateSlots = ['Sun 4', 'Mon 5', 'Tue 6'];
@@ -38,11 +44,16 @@ class _AppointmentScreenState extends State<AppointmentScreen2> {
     final repository = DoctorProfileRepositoryImpl(apiService, context);
     _doctorProfileCubit = DoctorProfileCubit(repository: repository);
     _doctorProfileCubit.getDoctorProfile(widget.doctorId);
+
+    // Initialize reservation cubit
+    final reservationRepository = ReservationRepositoryImpl(apiService: apiService);
+    _reservationCubit = ReservationCubit(repository: reservationRepository);
   }
 
   @override
   void dispose() {
     _doctorProfileCubit.close();
+    _reservationCubit.close();
     super.dispose();
   }
 
@@ -405,35 +416,76 @@ class _AppointmentScreenState extends State<AppointmentScreen2> {
                     // Book button
                     Padding(
                       padding: const EdgeInsets.all(20),
-                      child: Container(
-                        width: double.infinity,
-                        height: 50,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            final selectedTime = timeSlots[selectedTimeIndex];
-                            final selectedDay = dateSlots[selectedDateIndex];
+                      child: BlocConsumer<ReservationCubit, ReservationState>(
+                        bloc: _reservationCubit,
+                        listener: (context, state) {
+                          if (state is ReservationSuccess) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Booking appointment for $selectedDay at $selectedTime'),
-                                duration: const Duration(seconds: 2),
+                              const SnackBar(
+                                content: Text('Appointment booked successfully!'),
+                                backgroundColor: Colors.green,
                               ),
                             );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue[600],
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25),
+                          } else if (state is ReservationError) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Failed to book appointment: ${state.message}'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        },
+                        builder: (context, state) {
+                          return Container(
+                            width: double.infinity,
+                            height: 50,
+                            child: ElevatedButton(
+                              onPressed: state is ReservationLoading
+                                  ? null
+                                  : () async {
+                                      final selectedTime = timeSlots[selectedTimeIndex];
+                                      final selectedDay = dateSlots[selectedDateIndex];
+                                      
+                                      // Parse the selected date and time
+                                      final dateParts = selectedDay.split(' ');
+                                      final timeParts = selectedTime.split(' ');
+                                      final hour = int.parse(timeParts[0].split('.')[0]);
+                                      final minute = int.parse(timeParts[0].split('.')[1]);
+                                      final isPM = timeParts[1] == 'PM';
+                                      
+                                      final reservationDate = DateTime(
+                                        selectedDate.year,
+                                        selectedDate.month,
+                                        selectedDate.day,
+                                        isPM ? hour + 12 : hour,
+                                        minute,
+                                      );
+
+                                      _reservationCubit.makeReservation(
+                                        patientID: await CachedData.getData(Constant.id), // Replace with actual patient ID
+                                        doctorID: widget.doctorId,
+                                        reservationDate: reservationDate,
+                                      );
+                                    },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue[600],
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                              ),
+                              child: state is ReservationLoading
+                                  ? const CircularProgressIndicator(color: Colors.white)
+                                  : const Text(
+                                      'Book an Appointment',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
                             ),
-                          ),
-                          child: const Text(
-                            'Book an Appointment',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
+                          );
+                        },
                       ),
                     ),
                   ],

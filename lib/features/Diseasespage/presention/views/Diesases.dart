@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:dio/dio.dart';
+import 'package:mediverse/core/network/api/api_service.dart';
+import 'package:mediverse/core/utililes/cached_sp.dart';
 import '../../../../constants.dart';
+import '../cubit/genetic_history_cubit.dart';
+import '../cubit/genetic_history_state.dart';
+import '../../data/repositories/genetic_history_repository_impl.dart';
+import '../../../../constants.dart' as Constant;
 
 void main() {
   runApp(const MedicalApp());
@@ -39,6 +46,22 @@ class _MedicalInformationScreenState extends State<MedicalInformationScreen> {
   List<String?> selectedDiseases = [null]; // List to store multiple disease selections
   String? selectedBirthType;
   final TextEditingController additionalInfoController = TextEditingController();
+  late GeneticHistoryCubit _geneticHistoryCubit;
+
+  @override
+  void initState() {
+    super.initState();
+    final dio = Dio();
+    final apiService = ApiService(dio);
+    final repository = GeneticHistoryRepositoryImpl(apiService);
+    _geneticHistoryCubit = GeneticHistoryCubit(repository: repository);
+  }
+
+  @override
+  void dispose() {
+    _geneticHistoryCubit.close();
+    super.dispose();
+  }
 
   void addAnotherDiseaseField() {
     setState(() {
@@ -71,219 +94,255 @@ class _MedicalInformationScreenState extends State<MedicalInformationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header with back button and title
-              Row(
+        child: BlocListener<GeneticHistoryCubit, GeneticHistoryState>(
+          bloc: _geneticHistoryCubit,
+          listener: (context, state) {
+            if (state is GeneticHistorySuccess) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Genetic history saved successfully'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+              Navigator.pop(context);
+            } else if (state is GeneticHistoryError) {
+              print(state.message);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Error: ${state.message}'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_ios, color: Colors.blue),
-                    onPressed: () {
-                      // Handle back navigation
-                      Navigator.pop(context);
-                    },
-                  ),
-                  const SizedBox(width: 8),
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  // Header with back button and title
+                  Row(
                     children: [
-                      Text(
-                        'Select Disease',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.blue,
-                        ),
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back_ios, color: Colors.blue),
+                        onPressed: () {
+                          // Handle back navigation
+                          Navigator.pop(context);
+                        },
                       ),
-                      Text(
-                        'medical Information',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.black54,
-                        ),
+                      const SizedBox(width: 8),
+                      const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Select Disease',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.blue,
+                            ),
+                          ),
+                          Text(
+                            'medical Information',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.black54,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
-
-              const SizedBox(height: 24),
-
-              // Parent selection checkboxes
-              const Text(
-                'Select affected parent(s)',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              // Parent checkboxes
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildParentCheckbox('Father'),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _buildParentCheckbox('Mother'),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 24),
-
-              // Disease selection
-              const Text(
-                'Select one or more inherited diseases',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              // Multiple disease dropdowns
-              ...List.generate(selectedDiseases.length, (index) {
-                return Column(
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildDiseaseDropdown(index),
-                        ),
-                        if (index > 0)
-                          IconButton(
-                            icon: const Icon(Icons.remove_circle_outline, color: kPrimaryColor),
-                            onPressed: () => removeDiseaseField(index),
-                          ),
-                      ],
+              
+                  const SizedBox(height: 24),
+              
+                  // Parent selection checkboxes
+                  const Text(
+                    'Select affected parent(s)',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
                     ),
-                    if (index < selectedDiseases.length - 1)
-                      const SizedBox(height: 8),
-                  ],
-                );
-              }),
-
-              const SizedBox(height: 12),
-              TextButton.icon(
-                onPressed: addAnotherDiseaseField,
-                icon: const Icon(Icons.add, size: 20, color: Colors.black54),
-                label: const Text(
-                  'Add More',
-                  style: TextStyle(color: Colors.black54, fontSize: 16),
-                ),
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.zero,
-                  alignment: Alignment.centerLeft,
-                ),
-              ),
-
-              const SizedBox(height: 18),
-
-              // Additional information
-              const Text(
-                'Add more additional information',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: additionalInfoController,
-                decoration: InputDecoration(
-                  hintText: 'More information...',
-                  contentPadding: const EdgeInsets.all(16),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: Colors.grey[300]!),
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: Colors.grey[300]!),
+                  const SizedBox(height: 12),
+              
+                  // Parent checkboxes
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildParentCheckbox('Father'),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _buildParentCheckbox('Mother'),
+                      ),
+                    ],
                   ),
-                ),
-                maxLines: 3,
-              ),
+              
+                  const SizedBox(height: 24),
+              
+                  // Disease selection
+                  const Text(
+                    'Select one or more inherited diseases',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+              
+                  // Multiple disease dropdowns
+                  ...List.generate(selectedDiseases.length, (index) {
+                    return Column(
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildDiseaseDropdown(index),
+                            ),
+                            if (index > 0)
+                              IconButton(
+                                icon: const Icon(Icons.remove_circle_outline, color: kPrimaryColor),
+                                onPressed: () => removeDiseaseField(index),
+                              ),
+                          ],
+                        ),
+                        if (index < selectedDiseases.length - 1)
+                          const SizedBox(height: 8),
+                      ],
+                    );
+                  }),
+              
+                  const SizedBox(height: 12),
+                  TextButton.icon(
+                    onPressed: addAnotherDiseaseField,
+                    icon: const Icon(Icons.add, size: 20, color: Colors.black54),
+                    label: const Text(
+                      'Add More',
+                      style: TextStyle(color: Colors.black54, fontSize: 16),
+                    ),
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      alignment: Alignment.centerLeft,
+                    ),
+                  ),
+              
+                  const SizedBox(height: 18),
+              
+                  // Additional information
+                  const Text(
+                    'Add more additional information',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: additionalInfoController,
+                    decoration: InputDecoration(
+                      hintText: 'More information...',
+                      contentPadding: const EdgeInsets.all(16),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey[300]!),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey[300]!),
+                      ),
+                    ),
+                    maxLines: 3,
+                  ),
+              
+                  const SizedBox(height: 18),
+              
+                  // Birth type
+                  const Text(
+                    'Birth type',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      _buildBirthTypeButton('Natural'),
+                      const SizedBox(width: 10),
+                      _buildBirthTypeButton('cesarean'),
+                      const SizedBox(width: 10),
+                      _buildBirthTypeButton('premature'),
+                    ],
+                  ),
+              
+                  SizedBox(height: 24),
+              
+                  // Bottom buttons
+                  ElevatedButton(
+                    onPressed: () async {
+                      // Get selected parent
+                      String? selectedParent;
+                      parentSelection.forEach((parent, isSelected) {
+                        if (isSelected) {
+                          selectedParent = parent;
+                        }
+                      });
 
-              const SizedBox(height: 18),
+                      // Get selected disease
+                      String? selectedDisease = selectedDiseases.firstWhere(
+                        (disease) => disease != null,
+                        orElse: () => null,
+                      );
 
-              // Birth type
-              const Text(
-                'Birth type',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  _buildBirthTypeButton('Natural'),
-                  const SizedBox(width: 10),
-                  _buildBirthTypeButton('cesarean'),
-                  const SizedBox(width: 10),
-                  _buildBirthTypeButton('premature'),
+                      if (selectedParent == null || selectedDisease == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Please select a parent and at least one disease'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                        return;
+                      }
+
+                      _geneticHistoryCubit.addGeneticHistory(
+                        patientId: await CachedData.getData(Constant.id), // Replace with actual patient ID
+                        diseaseName: selectedDisease!,
+                        parent: selectedParent!,
+                        additionalInfo: additionalInfoController.text,
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      minimumSize: const Size(double.infinity, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                    ),
+                    child: const Text(
+                      'Save',
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
+                  ),
+              
+                  const SizedBox(height: 16),
+              
+                  const Row(
+                    children: [
+                      Expanded(child: Divider()),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text('Or', style: TextStyle(color: Colors.grey)),
+                      ),
+                      Expanded(child: Divider()),
+                    ],
+                  ),
+              
+                  const SizedBox(height: 16),
                 ],
               ),
-
-              const Spacer(),
-
-              // Bottom buttons
-              ElevatedButton(
-                onPressed: () {
-                  // Handle add another parent
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xff0E64D2),
-                  minimumSize: const Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                ),
-                child: const Text(
-                  'Add another diseases',
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              const Row(
-                children: [
-                  Expanded(child: Divider()),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text('Or', style: TextStyle(color: Colors.grey)),
-                  ),
-                  Expanded(child: Divider()),
-                ],
-              ),
-
-              const SizedBox(height: 16),
-
-              ElevatedButton(
-                onPressed: () {
-                  // Handle continue
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  minimumSize: const Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                ),
-                child: const Text(
-                  'Save',
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
