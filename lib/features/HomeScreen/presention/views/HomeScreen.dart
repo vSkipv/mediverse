@@ -71,7 +71,7 @@ class _MedicalAppHomePageState extends State<MedicalAppHomePage> {
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.calendar_today),
-                label: 'My Activity',
+                label: 'Appointment',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.monitor_heart),
@@ -168,7 +168,7 @@ class HomePage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Text(
-              'Hi Anthony',
+              'Hi ',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -237,10 +237,9 @@ class HomePage extends StatelessWidget {
                 ),
                 _buildImageIconWithText(
                     'assets/images/appoi.png',
-                    'Appointment',
+                    'view Appointment',
                         () => Navigator.push(context, MaterialPageRoute(builder: (context) => SearchScreen())),
-                    iconColor: kDarkerPrimaryColor  // Using the darker color for appointment icon
-                ),
+                    iconColor: kPrimaryColor),
                 _buildImageIconWithText(
                     'assets/images/Medicine.png',
                     'Medicine',
@@ -304,11 +303,11 @@ class ActivityPage extends StatelessWidget {
             Icon(Icons.calendar_today, size: 80, color: kPrimaryColor),
             SizedBox(height: 20),
             Text(
-              'My Activity',
+              'My Appointments',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 10),
-            Text('Track and view your medical activities here.'),
+            Text('Track and view your Appointments here.'),
           ],
         ),
       ),
