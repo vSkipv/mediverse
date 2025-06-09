@@ -4,3 +4,4 @@ const kPrimaryColor = Color(0xff0E64D2);
 const KGtSectra = "Manrope-VariableFont_wght";
 const String accessToekn = "acesstoken";
 const String id ="id";
+const String name = "name";

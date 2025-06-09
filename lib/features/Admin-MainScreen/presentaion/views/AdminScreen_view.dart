@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dio/dio.dart';
 import '../../../../core/network/api/api_service.dart';
+import '../../../../core/utililes/cached_sp.dart';
 import '../../data/model/doctor_model.dart';
 import '../../data/repositories/doctors_repository_impl.dart';
 import '../controller/cubit/doctors_cubit.dart';
 import '../controller/cubit/doctors_state.dart';
 import '../../../add_Doctor/presentaion/views/Add_Doctor.dart';
 import 'DoctorsListPage.dart';
+import '../../../../constants.dart' as Constant;
 
 void main() {
   runApp(MyApp());
@@ -28,7 +30,31 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class AdminScreen extends StatelessWidget {
+class AdminScreen extends StatefulWidget {
+  @override
+  State<AdminScreen> createState() => _AdminScreenState();
+}
+
+class _AdminScreenState extends State<AdminScreen> {
+  String? userName;
+  String? userId;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _loadUserData();
+
+  }
+  Future<void> _loadUserData() async {
+    final name = await CachedData.getData(Constant.name);
+    final id = await CachedData.getData(Constant.id);
+    setState(() {
+      userName = name;
+      userId = id.toString();
+      print('User Name: $userName');
+      print("user id $userId" );
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,7 +69,7 @@ class AdminScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Hi Admin',
+                    'Hi $userName',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w600,
@@ -102,9 +128,9 @@ class AdminScreen extends StatelessWidget {
                       ),
                       child: Center(
                         child: Text(
-                          'Admin ',
+                          'Admin ID: $userId ',
                           style: TextStyle(
-                            fontSize: 28,
+                            fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:mediverse/core/utililes/cached_sp.dart';
 
 import '../../../../constants.dart';
 import '../../../AccountScreen/presentaion/views/AccountScreen.dart';
 import '../../../AppointmentIcon/presention/views/AppointmentPage.dart';
+import '../../../../constants.dart' as Constant;
 
 // Add this line to your constants.dart file or add it directly here if you prefer
 final Color kDarkerPrimaryColor = Color(0xFF036BB9); // Darker version of kPrimaryColor
@@ -135,9 +137,33 @@ class _MedicalAppHomePageState extends State<MedicalAppHomePage> {
 }
 
 // Create each page for bottom navigation
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  String? userName;
+  String? userId;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _loadUserData();
+
+  }
+  Future<void> _loadUserData() async {
+    final name = await CachedData.getData(Constant.name);
+    final id = await CachedData.getData(Constant.id);
+    setState(() {
+      userName = name;
+      userId = id.toString();
+      print('User Name: $userName');
+      print("user id $userId" );
+    });
+  }
+  @override
+  Widget build(BuildContext context)   {
     return SafeArea(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -149,7 +175,7 @@ class HomePage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Hello,',
+                  'Hello, ',
                   style: TextStyle(
                     fontSize: 18,
                     color: Colors.grey[600],
@@ -168,7 +194,7 @@ class HomePage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Text(
-              'Hi ',
+              'Hi  $userName,',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -210,7 +236,7 @@ class HomePage extends StatelessWidget {
                   SizedBox(height: 16),
                   Text(
                     textAlign: TextAlign.center,
-                    '4080709010856',
+                   userId!,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,

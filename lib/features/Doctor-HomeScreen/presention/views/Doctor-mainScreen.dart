@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/utililes/cached_sp.dart';
 import '../../../view_patient_record/presentaion/views/view_patient_record.dart';
+import '../../../../constants.dart' as Constant;
 
 void main() {
   runApp(MyApp());
@@ -21,7 +23,31 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MedicalDashboard extends StatelessWidget {
+class MedicalDashboard extends StatefulWidget {
+  @override
+  State<MedicalDashboard> createState() => _MedicalDashboardState();
+}
+
+class _MedicalDashboardState extends State<MedicalDashboard> {
+  String? userName;
+  String? userId;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _loadUserData();
+
+  }
+  Future<void> _loadUserData() async {
+    final name = await CachedData.getData(Constant.name);
+    final id = await CachedData.getData(Constant.id);
+    setState(() {
+      userName = name;
+      userId = id.toString();
+      print('User Name: $userName');
+      print("user id $userId" );
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,7 +62,7 @@ class MedicalDashboard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Hi Doctor Name',
+                    'Hi Doctor $userName',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -82,9 +108,9 @@ class MedicalDashboard extends StatelessWidget {
                       ),
                       child: Center(
                         child: Text(
-                          'Doctor View',
+                          'Doctor Id : $userId',
                           style: TextStyle(
-                            fontSize: 32,
+                            fontSize: 24,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),

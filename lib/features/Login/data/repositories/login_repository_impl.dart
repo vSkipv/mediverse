@@ -27,9 +27,12 @@ class LoginRepositoryImpl implements LoginRepository {
       CachedData.saveToken(token);
       final id = response['id'];
      CachedData.setData(Constant.id, id);
+     final name= response['name'];
+      CachedData.setData(Constant.name, name);
      print('Login successful: $response');
      print('Token saved: $token');
       print('User ID saved: $id');
+      print('User Name saved: $name');
 
 
       return response;
