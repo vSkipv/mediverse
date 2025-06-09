@@ -747,6 +747,7 @@ class _AccountPageState extends State<AccountPage> {
                         color: Colors.black87,
                       ),
                     ),
+
                     Text(
                       'Administrator',
                       style: TextStyle(
