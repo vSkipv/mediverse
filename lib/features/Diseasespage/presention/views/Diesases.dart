@@ -257,26 +257,7 @@ class _MedicalInformationScreenState extends State<MedicalInformationScreen> {
                   ),
               
                   const SizedBox(height: 18),
-              
-                  // Birth type
-                  const Text(
-                    'Birth type',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      _buildBirthTypeButton('Natural'),
-                      const SizedBox(width: 10),
-                      _buildBirthTypeButton('cesarean'),
-                      const SizedBox(width: 10),
-                      _buildBirthTypeButton('premature'),
-                    ],
-                  ),
-              
+
                   SizedBox(height: 24),
               
                   // Bottom buttons
@@ -314,7 +295,7 @@ class _MedicalInformationScreenState extends State<MedicalInformationScreen> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
+                      backgroundColor: kPrimaryColor,
                       minimumSize: const Size(double.infinity, 50),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(25),
@@ -327,17 +308,6 @@ class _MedicalInformationScreenState extends State<MedicalInformationScreen> {
                   ),
               
                   const SizedBox(height: 16),
-              
-                  const Row(
-                    children: [
-                      Expanded(child: Divider()),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Text('Or', style: TextStyle(color: Colors.grey)),
-                      ),
-                      Expanded(child: Divider()),
-                    ],
-                  ),
               
                   const SizedBox(height: 16),
                 ],
@@ -426,9 +396,9 @@ class _MedicalInformationScreenState extends State<MedicalInformationScreen> {
           icon: const Icon(Icons.keyboard_arrow_down),
           items: <String>[
             'Diabetes',
-            'Heart Disease',
+            'heart disease',
             'Hypertension',
-            'Asthma',
+            'asthma',
           ].map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
               value: value,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/utililes/cached_sp.dart';
+import '../../../appoitments_in_Doctor/presention/views/state_appoitments.dart';
 import '../../../view_patient_record/presentaion/views/view_patient_record.dart';
 import '../../../../constants.dart' as Constant;
 
@@ -139,7 +140,7 @@ class _MedicalDashboardState extends State<MedicalDashboard> {
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => AppointmentPage()),
+                              MaterialPageRoute(builder: (context) => AppointmentsStatePage()),
                             );
                           },
                           child: Padding(
@@ -156,7 +157,7 @@ class _MedicalDashboardState extends State<MedicalDashboard> {
                                 ),
                                 SizedBox(width: 15),
                                 Text(
-                                  'View appointment',
+                                  'View appointment state',
                                   style: TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.w600,
