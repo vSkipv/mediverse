@@ -485,7 +485,31 @@ class SupportPage extends StatelessWidget {
 }
 
 // Account Page
-class AccountPage extends StatelessWidget {
+class AccountPage extends StatefulWidget {
+  @override
+  State<AccountPage> createState() => _AccountPageState();
+}
+
+class _AccountPageState extends State<AccountPage> {
+  String? userName;
+  String? userId;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _loadUserData();
+
+  }
+  Future<void> _loadUserData() async {
+    final name = await CachedData.getData(Constant.name);
+    final id = await CachedData.getData(Constant.id);
+    setState(() {
+      userName = name;
+      userId = id.toString();
+      print('User Name: $userName');
+      print("user id $userId" );
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -530,7 +554,7 @@ class AccountPage extends StatelessWidget {
                     ),
                     SizedBox(height: 15),
                     Text(
-                      'Doctor Name',
+                      '$userName ',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,

@@ -184,7 +184,7 @@ class _HomePageState extends State<HomePage> {
                 CircleAvatar(
                   backgroundColor: Colors.orange,
                   child: Text(
-                    'A',
+                    userName![0].toUpperCase() + userName!.substring(1).toLowerCase().split(" ")[0].substring(0, 1),
                     style: TextStyle(color: Colors.white),
                   ),
                 ),
