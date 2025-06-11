@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:mediverse/core/utililes/cached_sp.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:dio/dio.dart';
 
 import '../../../../constants.dart';
 import '../../../AccountScreen/presentaion/views/AccountScreen.dart';
 import '../../../AppointmentIcon/presention/views/AppointmentPage.dart';
 import '../../../../constants.dart' as Constant;
+import '../../../HospitalList/presentaion/views/HospitalPage.dart';
+import '../../data/repository/appointment_repository.dart';
+import '../../presention/cubit/appointment_cubit.dart';
+import '../../../../core/network/api/api_service.dart';
 
 // Add this line to your constants.dart file or add it directly here if you prefer
 final Color kDarkerPrimaryColor = Color(0xFF036BB9); // Darker version of kPrimaryColor
@@ -145,23 +151,29 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   String? userName;
   String? userId;
+  String? userImage;
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _loadUserData();
-
   }
+
   Future<void> _loadUserData() async {
     final name = await CachedData.getData(Constant.name);
     final id = await CachedData.getData(Constant.id);
+    final image = await CachedData.getData(Constant.image);
     setState(() {
       userName = name;
       userId = id.toString();
+      userImage = image;
       print('User Name: $userName');
       print("user id $userId" );
+      print("user image $userImage");
     });
   }
+
   @override
   Widget build(BuildContext context)   {
     return SafeArea(
@@ -182,11 +194,14 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 CircleAvatar(
-                  backgroundColor: Colors.orange,
-                  child: Text(
-                    userName![0].toUpperCase() + userName!.substring(1).toLowerCase().split(" ")[0].substring(0, 1),
-                    style: TextStyle(color: Colors.white),
-                  ),
+                  radius: 30,
+                  backgroundColor: Colors.white,
+                  backgroundImage: userImage != null && userImage!.isNotEmpty
+                      ? NetworkImage(userImage!)
+                      : null,
+                  child: userImage == null || userImage!.isEmpty
+                      ? Icon(Icons.person, size: 30, color: kPrimaryColor)
+                      : null,
                 ),
               ],
             ),
@@ -221,12 +236,34 @@ class _HomePageState extends State<HomePage> {
                       Row(
                         children: [
                           CircleAvatar(
-                            backgroundImage: AssetImage('assets/images/profile.png'),
+                            radius: 30,
+                            backgroundColor: Colors.white,
+                            backgroundImage: userImage != null && userImage!.isNotEmpty
+                                ? NetworkImage(userImage!)
+                                : null,
+                            child: userImage == null || userImage!.isEmpty
+                                ? Icon(Icons.person, size: 30, color: kPrimaryColor)
+                                : null,
                           ),
                           SizedBox(width: 10),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              Text(
+                                userName ?? 'User',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                'Patient ID: ${userId ?? 'N/A'}',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 14,
+                                ),
+                              ),
                             ],
                           ),
                         ],
@@ -234,16 +271,7 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                   SizedBox(height: 16),
-                  Text(
-                    textAlign: TextAlign.center,
-                   userId!,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: "GT Sectra Fine",
-                    ),
-                  ),
+
                 ],
               ),
             ),
@@ -275,7 +303,7 @@ class _HomePageState extends State<HomePage> {
                 _buildImageIconWithText(
                     'assets/images/hospital.png',
                     'Hospital',
-                        () => Navigator.push(context, MaterialPageRoute(builder: (context) => HospitalPage())),
+                        () => Navigator.push(context, MaterialPageRoute(builder: (context) => HospitalListScreen())),
                     iconColor: kPrimaryColor
                 ),
               ],
@@ -318,24 +346,162 @@ class _HomePageState extends State<HomePage> {
 }
 
 // Activity Page
-class ActivityPage extends StatelessWidget {
+class ActivityPage extends StatefulWidget {
+  @override
+  State<ActivityPage> createState() => _ActivityPageState();
+}
+
+class _ActivityPageState extends State<ActivityPage> {
+  String? patientId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPatientId();
+  }
+
+  Future<void> _loadPatientId() async {
+    final id = await CachedData.getData(Constant.id);
+    setState(() {
+      patientId = id?.toString(); // Convert to string
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.calendar_today, size: 80, color: kPrimaryColor),
-            SizedBox(height: 20),
-            Text(
-              'My Appointments',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            Text('Track and view your Appointments here.'),
-          ],
+    if (patientId == null) {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    return BlocProvider(
+      create: (context) => AppointmentCubit(
+        AppointmentRepository(
+          ApiService(Dio()),
         ),
+      )..getAppointments(patientId!),
+      child: BlocBuilder<AppointmentCubit, AppointmentState>(
+        builder: (context, state) {
+          print('Building UI with state: $state');
+          print('Using patient ID: $patientId'); // Debug print
+          
+          if (state is AppointmentLoading) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Loading appointments...'),
+                ],
+              ),
+            );
+          } else if (state is AppointmentLoaded) {
+            if (state.appointments.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.event_busy, size: 48, color: Colors.grey),
+                    SizedBox(height: 16),
+                    Text(
+                      'No appointments found',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  ],
+                ),
+              );
+            }
+            
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'My Appointments',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: kPrimaryColor,
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: state.appointments.length,
+                        itemBuilder: (context, index) {
+                          final appointment = state.appointments[index];
+                          // Parse the reservation date
+                          final dateTime = DateTime.parse(appointment.reservation);
+                          final formattedDate = '${dateTime.day}/${dateTime.month}/${dateTime.year}';
+                          final formattedTime = '${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
+                          
+                          return Card(
+                            margin: EdgeInsets.only(bottom: 12),
+                            child: ListTile(
+                              leading: CircleAvatar(
+                                backgroundColor: kPrimaryColor,
+                                child: Icon(Icons.calendar_today, color: Colors.white),
+                              ),
+                              title: Text(
+                                appointment.doctorName,
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Date: $formattedDate'),
+                                  Text('Time: $formattedTime'),
+                                  Text('Status: ${appointment.status}'),
+                                ],
+                              ),
+                              isThreeLine: true,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          } else if (state is AppointmentError) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error_outline, size: 48, color: Colors.red),
+                  SizedBox(height: 16),
+                  Text(
+                    'Error loading appointments',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      state.message,
+                      style: TextStyle(color: Colors.red),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      context.read<AppointmentCubit>().getAppointments(patientId!);
+                    },
+                    child: Text('Retry'),
+                  ),
+                ],
+              ),
+            );
+          }
+          
+          return Center(
+            child: Text('Initial state - waiting for data'),
+          );
+        },
       ),
     );
   }
@@ -418,28 +584,3 @@ class MedicinePage extends StatelessWidget {
   }
 }
 
-class HospitalPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Hospitals'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.local_hospital, size: 80, color: Colors.blue),
-            SizedBox(height: 20),
-            Text(
-              'Hospital Page',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            Text('Find and connect with nearby hospitals and clinics.'),
-          ],
-        ),
-      ),
-    );
-  }
-}

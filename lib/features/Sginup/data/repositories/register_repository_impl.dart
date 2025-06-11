@@ -21,7 +21,7 @@ class RegisterRepositoryImpl implements RegisterRepository {
     required String city,
     required String fullAddress,
     required String password,
-    required File? image,
+     File? image,
   }) async {
     try {
       final response = await apiService.post(

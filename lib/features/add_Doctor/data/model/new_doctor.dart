@@ -2,10 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
-import 'package:http_parser/http_parser.dart';
 
 class NewDoctor{
-
   String firstName;
   String lastName;
   String description;
