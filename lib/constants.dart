@@ -5,3 +5,4 @@ const KGtSectra = "Manrope-VariableFont_wght";
 const String accessToekn = "acesstoken";
 const String id ="id";
 const String name = "name";
+const String image = "image";

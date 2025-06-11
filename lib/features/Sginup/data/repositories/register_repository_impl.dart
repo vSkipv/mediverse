@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:mediverse/core/network/api/api_service.dart';
 import 'package:mediverse/features/Sginup/data/repositories/register_repository.dart';
@@ -19,6 +21,7 @@ class RegisterRepositoryImpl implements RegisterRepository {
     required String city,
     required String fullAddress,
     required String password,
+    required File? image,
   }) async {
     try {
       final response = await apiService.post(
@@ -34,6 +37,7 @@ class RegisterRepositoryImpl implements RegisterRepository {
           'city': city,
           'fullAddress': fullAddress,
           'password': password,
+          'image': image != null ? MultipartFile.fromFileSync(image.path) : null,
         },
         token: false,
       );

@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
+import 'package:dio/dio.dart';
+import 'package:http_parser/http_parser.dart';
 
 class NewDoctor{
 
@@ -10,9 +14,13 @@ class NewDoctor{
   String fullAdress;
   String password;
   String specialist;
+  String email;
+  String gender;
+  File? image;
+  String phoneNumber;
 
   NewDoctor({required this.firstName, required this.lastName, required this.description, required this.city,
-      required this.country, required this.fullAdress, required this.password, required this.specialist});
+      required this.country, required this.fullAdress, required this.password, required this.specialist, required this.email, required this.gender, this.image, required this.phoneNumber,});
 
  factory NewDoctor.fromJson(Map<String, dynamic> json){
    String firstName = json['firstName'] ?? '';
@@ -37,21 +45,53 @@ class NewDoctor{
      country: json["country"],
      fullAdress: json["fullAddress"],
      password: json["password"],
-     specialist: json["specialist"]
+     specialist: json["specialist"],
+     email: json["email"],
+     gender: json["gender"],
+     image: json["image"],
+     phoneNumber: json["phoneNumber"],
    );
  }
 
  Map<String,dynamic> toJson(){
    return{
-     "firstName":firstName,
-     "lastName": lastName,
+      "firstName": firstName,
+      "lastName": lastName,
      "description": description,
      "city": city,
      "country": country,
      "fullAddress": fullAdress,
      "password": password,
-     "specialist": specialist
-   };
+      "specialist": specialist,
+      "email": email,
+      "gender": gender,
+      "phoneNumber": phoneNumber,
+    };
  }
 
+  Future<FormData> toFormData() async {
+    Map<String, dynamic> fields = {
+      "firstName": firstName,
+      "lastName": lastName,
+      "description": description,
+      "city": city,
+      "country": country,
+      "fullAddress": fullAdress,
+      "password": password,
+      "specialist": specialist,
+      "email": email,
+      "gender": gender,
+      "phoneNumber": phoneNumber,
+    };
+
+    if (image != null) {
+      String fileName = image!.path.split('/').last;
+      fields["image"] = await MultipartFile.fromFile(
+        image!.path,
+        filename: fileName,
+      );
+    }
+
+    return FormData.fromMap(fields);
+  }
 }

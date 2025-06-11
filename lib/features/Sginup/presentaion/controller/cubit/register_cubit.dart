@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mediverse/features/Sginup/presentaion/controller/cubit/register_state.dart';
 
@@ -19,6 +21,7 @@ class RegisterCubit extends Cubit<RegisterState> {
     required String city,
     required String fullAddress,
     required String password,
+    required File? image,
   }) async {
     try {
       emit(const RegisterLoading());
@@ -33,6 +36,7 @@ class RegisterCubit extends Cubit<RegisterState> {
         city: city,
         fullAddress: fullAddress,
         password: password,
+        image: image,
       );
       emit(RegisterSuccess(response));
     } catch (e) {

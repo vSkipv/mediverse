@@ -7,7 +7,7 @@ class DoctorProfile {
   final String country;
   final String fullAddress;
   final String specialist;
-
+  final String? image;
   DoctorProfile({
     required this.id,
     required this.firstName,
@@ -17,6 +17,7 @@ class DoctorProfile {
     required this.country,
     required this.fullAddress,
     required this.specialist,
+    this.image,
   });
 
   factory DoctorProfile.fromJson(Map<String, dynamic> json) {
@@ -29,6 +30,7 @@ class DoctorProfile {
       country: json['country'],
       fullAddress: json['fullAddress'],
       specialist: json['specialist'],
+      image: json['image'],
     );
   }
 } 

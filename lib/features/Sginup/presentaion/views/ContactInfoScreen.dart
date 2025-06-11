@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:image_picker/image_picker.dart';
 import '../../../../constants.dart';
 import '../../../Login/presentaion/views/LoginScreen.dart';
 import '../controller/cubit/register_cubit.dart';
 import '../controller/cubit/register_state.dart';
+import 'dart:io';
 
 class ContactInfoScreen extends StatefulWidget {
   final Map<String, dynamic> personalInfo;
@@ -18,9 +19,10 @@ class ContactInfoScreen extends StatefulWidget {
 class _ContactInfoScreenState extends State<ContactInfoScreen> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
-  
+
   String _selectedCountry = 'Egypt';
   String _selectedCity = 'Cairo';
+  String? _selectedImagePath;
 
   final List<String> _egyptGovernorates = [
     'Cairo',
@@ -79,6 +81,60 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
     super.dispose();
   }
 
+  Future<void> _pickImage() async {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Photo Library'),
+                onTap: () {
+                  _getImage(ImageSource.gallery);
+                  Navigator.of(context).pop();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_camera),
+                title: const Text('Camera'),
+                onTap: () {
+                  _getImage(ImageSource.camera);
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _getImage(ImageSource source) async {
+    // TODO: Implement actual image picker functionality
+    // You'll need to add image_picker package and implement this
+    // Example implementation:
+    // final picker = ImagePicker();
+    // final pickedFile = await picker.pickImage(source: source);
+    // if (pickedFile != null) {
+    //   setState(() {
+    //     _selectedImagePath = pickedFile.path;
+    //   });
+    // }
+
+    // Placeholder for now
+    setState(() {
+      _selectedImagePath = source == ImageSource.camera ? 'camera_image' : 'gallery_image';
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${source == ImageSource.camera ? 'Camera' : 'Gallery'} functionality - Add image_picker package'),
+      ),
+    );
+  }
+
   void _handleRegistration() {
     if (_phoneController.text.isEmpty ||
         _addressController.text.isEmpty) {
@@ -86,6 +142,13 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
         const SnackBar(content: Text('Please fill all fields')),
       );
       return;
+    }
+
+    // Convert image path to File if available
+    File? imageFile;
+    if (widget.personalInfo['imagePath'] != null &&
+        widget.personalInfo['imagePath'].isNotEmpty) {
+      imageFile = File(widget.personalInfo['imagePath']);
     }
 
     context.read<RegisterCubit>().register(
@@ -99,7 +162,8 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
       city: _selectedCity,
       fullAddress: _addressController.text,
       password: widget.personalInfo['password'],
-    );
+          image: imageFile,
+        );
   }
 
   @override
@@ -117,7 +181,7 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
                   backgroundColor: Colors.green,
                 ),
               );
-              
+
               // Navigate to login screen and clear the stack
               Navigator.pushReplacement(
                 context,
@@ -254,6 +318,113 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
                     ),
                     const SizedBox(height: 20),
 
+                    // Add Photo Button/Display (Added after full address)
+                    Center(
+                      child: GestureDetector(
+                        onTap: _pickImage,
+                        child: Container(
+                          height: 200,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: kPrimaryColor.withOpacity(0.3),
+                              width: 2,
+                              style: BorderStyle.solid,
+                            ),
+                            color: _selectedImagePath != null
+                                ? Colors.grey.shade100
+                                : kPrimaryColor.withOpacity(0.05),
+                          ),
+                          child: _selectedImagePath != null
+                              ? Stack(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Container(
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  color: Colors.grey.shade200,
+                                  child: const Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.check_circle,
+                                        size: 48,
+                                        color: Colors.green,
+                                      ),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        'Photo Selected',
+                                        style: TextStyle(
+                                          color: Colors.green,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text(
+                                        'Tap to change photo',
+                                        style: TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                top: 8,
+                                right: 8,
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.edit,
+                                    size: 16,
+                                    color: kPrimaryColor,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                              : const Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.add_photo_alternate_outlined,
+                                size: 64,
+                                color: kPrimaryColor,
+                              ),
+                              SizedBox(height: 12),
+                              Text(
+                                'Add Photo',
+                                style: TextStyle(
+                                  color: kPrimaryColor,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                'Tap to select from camera or gallery',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 12,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
                     // Next Button
                     SizedBox(
                       width: double.infinity,
@@ -270,12 +441,12 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
                         child: state is RegisterLoading
                             ? const CircularProgressIndicator(color: Colors.white)
                             : const Text(
-                                'Complete Registration',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                          'Complete Registration',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -288,4 +459,4 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
       ),
     );
   }
-} 
+}

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 abstract class RegisterRepository {
   Future<Map<String, dynamic>> register({
     required int nationalId,
@@ -10,5 +12,6 @@ abstract class RegisterRepository {
     required String city,
     required String fullAddress,
     required String password,
+    required File? image,
   });
 } 

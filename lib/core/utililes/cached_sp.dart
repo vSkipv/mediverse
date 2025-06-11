@@ -86,4 +86,10 @@ class CachedData {
     print('Has token: $hasToken');
     return hasToken;
   }
+
+  static Future<String?> getimage() async {
+    final image = await getData(Constant.image) as String?;
+    print('Getting image: $image');
+    return image;
+  }
 }

@@ -139,14 +139,22 @@ class ApiService {
     Function(int sent, int total)? onSendProgress,
   }) async {
     try {
+      String? authToken;
+      if (token == true) {
+        authToken = await CachedData.getData(Constant.accessToekn);
+        if (authToken == null) {
+          throw Exception('Authentication token not found');
+        }
+      }
+
       final response = await _dio.post(
-        "$_baseUrl$endpoint",
+        endpoint,
         data: data,
         options: Options(
           headers: {
             'Content-Type': 'multipart/form-data',
-            if (token == true)
-              'Authorization': 'Bearer ${await CachedData.getData(Constant.accessToekn)}',
+            'Accept': '*/*',
+            if (token == true) 'Authorization': 'Bearer $authToken',
           },
           responseType: responseType ?? ResponseType.json,
         ),
@@ -159,6 +167,8 @@ class ApiService {
         throw ServerFailuer.fromResponse(response.statusCode, response.data);
       }
     } on DioException catch (dioError) {
+      print('DioError: ${dioError.message}');
+      print('DioError Response: ${dioError.response?.data}');
       throw ServerFailuer.fromDioError(dioError);
     } catch (e) {
       throw ServerFailuer("Unexpected error: ${e.toString()}");

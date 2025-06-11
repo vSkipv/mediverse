@@ -10,12 +10,19 @@ class NewDoctorRepoImp extends NewDoctorRepo{
   @override
   Future<Map<String, dynamic>> addDoctor({required NewDoctor doctor}) async {
     try{
-      final response = await apiService.post(endpoint: "Doctors/create", data: doctor.toJson(),token: true);
-      return response;
-
+      // Use multipart form data if there's an image, otherwise use JSON
+      if (doctor.image != null) {
+        final formData = await doctor.toFormData();
+        final response = await apiService.postContent(
+            endpoint: "Doctors/create", data: formData, token: true);
+        return response;
+      } else {
+        final response = await apiService.post(
+            endpoint: "Doctors/create", data: doctor.toJson(), token: true);
+        return response;
+      }
     }catch(e){
-      throw Exception('Login failed: $e');
-
+      throw Exception('Failed to add doctor: $e');
     }
   }
   

@@ -97,24 +97,6 @@ class MainScreen extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 7),
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => MedicalDashboard()),
-                );
-              },
-              child: Text(
-                'continue as Guest',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.white,
-                  fontFamily: 'GT Sectra Fine',
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-            ),
           ],
         ),
       ),

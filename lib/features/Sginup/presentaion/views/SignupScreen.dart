@@ -252,54 +252,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         thickness: 1,
                       ),
                     ),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        'Or With',
-                        style: TextStyle(
-                          color: Colors.black54,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Divider(
-                        color: Colors.grey[400],
-                        thickness: 1,
-                      ),
-                    ),
                   ],
-                ),
-                const SizedBox(height: 20),
-
-                // Google Sign Up Button
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () {},
-                    icon: Image.asset(
-                      'assets/images/Google-logo.svg.png',
-                      height: 24,
-                      width: 24,
-                      errorBuilder: (context, error, stackTrace) =>
-                          const Icon(Icons.g_mobiledata, size: 44),
-                    ),
-                    label: const Text(
-                      'Signup with Google',
-                      style: TextStyle(
-                        color: Colors.black87,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      side: const BorderSide(color: Colors.grey),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                  ),
                 ),
                 const SizedBox(height: 20),
 

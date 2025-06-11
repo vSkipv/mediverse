@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dio/dio.dart';
 import '../../../../core/network/api/api_service.dart';
 import '../../../../core/utililes/cached_sp.dart';
+import '../../../Login/presentaion/views/LoginScreen.dart';
+import '../../../MainScreen/presentaion/views/MainScreen_view.dart';
 import '../../data/model/doctor_model.dart';
 import '../../data/repositories/doctors_repository_impl.dart';
 import '../controller/cubit/doctors_cubit.dart';
@@ -679,13 +681,13 @@ class _AccountPageState extends State<AccountPage> {
 
   String? userName;
   String? userId;
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _loadUserData();
-
   }
+
   Future<void> _loadUserData() async {
     final name = await CachedData.getData(Constant.name);
     final id = await CachedData.getData(Constant.id);
@@ -696,6 +698,89 @@ class _AccountPageState extends State<AccountPage> {
       print("user id $userId" );
     });
   }
+
+  // Logout confirmation dialog
+  Future<void> _showLogoutDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // User must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          title: Row(
+            children: [
+              Icon(
+                Icons.logout,
+                color: Colors.red,
+                size: 24,
+              ),
+              SizedBox(width: 10),
+              Text(
+                'Logout',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            'Are you sure you want to logout?',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey[700],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog
+              },
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                'Logout',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              onPressed: () {
+                CachedData.removeToken();
+                Navigator.pop(context); // Close dialog
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>  MainScreen(),
+                  ),
+                );
+              },
+
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -740,14 +825,13 @@ class _AccountPageState extends State<AccountPage> {
                     ),
                     SizedBox(height: 15),
                     Text(
-                      userName!,
+                      userName ?? 'Loading...',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                         color: Colors.black87,
                       ),
                     ),
-
                     Text(
                       'Administrator',
                       style: TextStyle(
@@ -780,7 +864,7 @@ class _AccountPageState extends State<AccountPage> {
               _buildAccountOption(
                 icon: Icons.logout,
                 title: 'Logout',
-                onTap: () {},
+                onTap: _showLogoutDialog, // Show confirmation dialog
                 isDestructive: true,
               ),
             ],

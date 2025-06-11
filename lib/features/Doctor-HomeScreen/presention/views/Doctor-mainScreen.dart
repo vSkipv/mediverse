@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/utililes/cached_sp.dart';
+import '../../../MainScreen/presentaion/views/MainScreen_view.dart';
 import '../../../appoitments_in_Doctor/presention/views/state_appoitments.dart';
 import '../../../view_patient_record/presentaion/views/view_patient_record.dart';
 import '../../../../constants.dart' as Constant;
@@ -494,6 +495,7 @@ class AccountPage extends StatefulWidget {
 class _AccountPageState extends State<AccountPage> {
   String? userName;
   String? userId;
+  String? userimage;
   @override
   void initState() {
     // TODO: implement initState
@@ -594,7 +596,48 @@ class _AccountPageState extends State<AccountPage> {
               _buildAccountOption(
                 icon: Icons.logout,
                 title: 'Logout',
-                onTap: () {},
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Row(
+                          children: [
+                            Icon(Icons.logout, color: Colors.red),
+                            SizedBox(width: 10),
+                            Text('Logout'),
+                          ],
+                        ),
+                        content: Text('Are you sure you want to logout?'),
+                        actions: [
+                          TextButton(
+                            child: Text('Cancel'),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              foregroundColor: Colors.white,
+                            ),
+                            child: Text('Logout'),
+                            onPressed: () {
+                              CachedData.removeToken();
+                              Navigator.pop(context); // Close dialog
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => MainScreen(),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
                 isDestructive: true,
               ),
             ],

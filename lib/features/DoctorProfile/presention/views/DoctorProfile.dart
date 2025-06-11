@@ -222,7 +222,24 @@ class _AppointmentScreenState extends State<AppointmentScreen2> {
                                     CircleAvatar(
                                       backgroundColor: Colors.blue[50],
                                       radius: 16,
-                                      child: const Icon(Icons.videocam, size: 16, color: Colors.blue),
+                                      child: doctor.image == null
+                                          ? const Icon(Icons.message,
+                                              size: 16, color: Colors.blue)
+                                          : ClipOval(
+                                              child: Image.network(
+                                                "http://projectmetaverse.runasp.net/images/fbf85cf9.jpg${doctor.image}",
+                                                width: 32,
+                                                height: 32,
+                                                fit: BoxFit.cover,
+                                                errorBuilder: (context, error,
+                                                    stackTrace) {
+                                                  return const Icon(
+                                                      Icons.message,
+                                                      size: 16,
+                                                      color: Colors.blue);
+                                                },
+                                              ),
+                                            ),
                                     ),
                                   ],
                                 ),
