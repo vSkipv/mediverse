@@ -9,6 +9,7 @@ import '../../../AppointmentIcon/presention/views/AppointmentPage.dart';
 import '../../../../constants.dart' as Constant;
 import '../../../HospitalList/presentaion/views/HospitalPage.dart';
 import '../../../Ui-for-Ai-Models/presentaion/views/Ai-model.dart';
+import '../../../ViewMdeicalHistory/presentaion/views/medical_history_view.dart';
 import '../../data/repository/appointment_repository.dart';
 import '../../presention/cubit/appointment_cubit.dart';
 import '../../../../core/network/api/api_service.dart';
@@ -287,7 +288,7 @@ class _HomePageState extends State<HomePage> {
                 _buildImageIconWithText(
                     'assets/images/Vector.png',
                     'Analysis',
-                        () => Navigator.push(context, MaterialPageRoute(builder: (context) => AnalysisPage())),
+                        () => Navigator.push(context, MaterialPageRoute(builder: (context) => MedicalHistoryView())),
                     iconColor: kPrimaryColor
                 ),
                 _buildImageIconWithText(
@@ -508,56 +509,9 @@ class _ActivityPageState extends State<ActivityPage> {
   }
 }
 
-// Predictions Page
-class PredictionsPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.monitor_heart, size: 80, color: Colors.blue),
-            SizedBox(height: 20),
-            Text(
-              'Predictions',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            Text('View your health predictions and analytics.'),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
-// Existing destination pages
-class AnalysisPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Analysis'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.analytics, size: 80, color: Colors.blue),
-            SizedBox(height: 20),
-            Text(
-              'Analysis Page',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            Text('Your medical analysis data will be shown here.'),
-          ],
-        ),
-      ),
-    );
-  }
-}
+
+
 
 class MedicinePage extends StatelessWidget {
   @override

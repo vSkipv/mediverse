@@ -30,7 +30,29 @@ class DoctorProfile {
       country: json['country'],
       fullAddress: json['fullAddress'],
       specialist: json['specialist'],
-      image: json['image'],
+      image: _processImagePath(json['image']),
     );
   }
-} 
+
+  // Helper method to process image paths
+  static String? _processImagePath(String? imagePath) {
+    if (imagePath == null || imagePath.isEmpty) {
+      return null;
+    }
+
+    String processedPath = imagePath;
+
+    // Remove file:/// prefix if present
+    if (processedPath.startsWith('file:///')) {
+      processedPath = processedPath.substring(8); // Remove 'file:///'
+    }
+
+    // Ensure path starts with /
+    if (!processedPath.startsWith('/')) {
+      processedPath = '/$processedPath';
+    }
+
+    // Construct complete URL
+    return 'http://projectmetaverse.runasp.net$processedPath';
+  }
+}

@@ -12,6 +12,6 @@ abstract class RegisterRepository {
     required String city,
     required String fullAddress,
     required String password,
-     File? image,
+    File? image,
   });
 } 

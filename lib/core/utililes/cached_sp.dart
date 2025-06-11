@@ -92,4 +92,33 @@ class CachedData {
     print('Getting image: $image');
     return image;
   }
+
+  static Future<bool> saveImage(String? imageUrl) async {
+    print('Saving image: $imageUrl');
+    final result = await setData(Constant.image, imageUrl);
+    print('Image save result: $result');
+    return result;
+  }
+
+  /// Converts a relative image path to a complete URL
+  static String? processImagePath(String? imagePath) {
+    if (imagePath == null || imagePath.isEmpty) {
+      return null;
+    }
+
+    String processedPath = imagePath;
+
+    // Remove file:/// prefix if present
+    if (processedPath.startsWith('file:///')) {
+      processedPath = processedPath.substring(8); // Remove 'file:///'
+    }
+
+    // Ensure path starts with /
+    if (!processedPath.startsWith('/')) {
+      processedPath = '/$processedPath';
+    }
+
+    // Construct complete URL
+    return 'http://projectmetaverse.runasp.net$processedPath';
+  }
 }

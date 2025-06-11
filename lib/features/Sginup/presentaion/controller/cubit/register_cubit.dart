@@ -21,7 +21,7 @@ class RegisterCubit extends Cubit<RegisterState> {
     required String city,
     required String fullAddress,
     required String password,
-    required File? image,
+    File? image,
   }) async {
     try {
       emit(const RegisterLoading());

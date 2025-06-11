@@ -22,7 +22,8 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
 
   String _selectedCountry = 'Egypt';
   String _selectedCity = 'Cairo';
-  String? _selectedImagePath;
+  File? _selectedImage; // Changed to File? to store actual image file
+  final ImagePicker _picker = ImagePicker(); // ImagePicker instance
 
   final List<String> _egyptGovernorates = [
     'Cairo',
@@ -84,55 +85,126 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
   Future<void> _pickImage() async {
     showModalBottomSheet(
       context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (BuildContext context) {
         return SafeArea(
-          child: Wrap(
-            children: [
-              ListTile(
-                leading: const Icon(Icons.photo_library),
-                title: const Text('Photo Library'),
-                onTap: () {
-                  _getImage(ImageSource.gallery);
-                  Navigator.of(context).pop();
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.photo_camera),
-                title: const Text('Camera'),
-                onTap: () {
-                  _getImage(ImageSource.camera);
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Select Photo',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildImageSourceOption(
+                      icon: Icons.photo_camera,
+                      label: 'Camera',
+                      onTap: () => _getImage(ImageSource.camera),
+                    ),
+                    _buildImageSourceOption(
+                      icon: Icons.photo_library,
+                      label: 'Gallery',
+                      onTap: () => _getImage(ImageSource.gallery),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         );
       },
     );
   }
 
-  Future<void> _getImage(ImageSource source) async {
-    // TODO: Implement actual image picker functionality
-    // You'll need to add image_picker package and implement this
-    // Example implementation:
-    // final picker = ImagePicker();
-    // final pickedFile = await picker.pickImage(source: source);
-    // if (pickedFile != null) {
-    //   setState(() {
-    //     _selectedImagePath = pickedFile.path;
-    //   });
-    // }
-
-    // Placeholder for now
-    setState(() {
-      _selectedImagePath = source == ImageSource.camera ? 'camera_image' : 'gallery_image';
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${source == ImageSource.camera ? 'Camera' : 'Gallery'} functionality - Add image_picker package'),
+  Widget _buildImageSourceOption({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+        decoration: BoxDecoration(
+          color: kPrimaryColor.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: kPrimaryColor.withOpacity(0.2)),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              size: 32,
+              color: kPrimaryColor,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                color: kPrimaryColor,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  Future<void> _getImage(ImageSource source) async {
+    try {
+      final XFile? pickedFile = await _picker.pickImage(
+        source: source,
+        maxWidth: 1800,
+        maxHeight: 1800,
+        imageQuality: 85, // Compress image to reduce file size
+      );
+
+      if (pickedFile != null) {
+        setState(() {
+          _selectedImage = File(pickedFile.path);
+        });
+
+        Navigator.of(context).pop(); // Close the bottom sheet
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Photo selected successfully!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      Navigator.of(context).pop(); // Close the bottom sheet
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error selecting image: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   void _handleRegistration() {
@@ -144,11 +216,20 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
       return;
     }
 
-    // Convert image path to File if available
-    File? imageFile;
-    if (widget.personalInfo['imagePath'] != null &&
+    // Validate phone number
+    if (_phoneController.text.length < 10) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid phone number')),
+      );
+      return;
+    }
+
+    // Use the selected image, or fall back to personal info image if available
+    File? imageToSend = _selectedImage;
+    if (imageToSend == null &&
+        widget.personalInfo['imagePath'] != null &&
         widget.personalInfo['imagePath'].isNotEmpty) {
-      imageFile = File(widget.personalInfo['imagePath']);
+      imageToSend = File(widget.personalInfo['imagePath']);
     }
 
     context.read<RegisterCubit>().register(
@@ -162,8 +243,8 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
       city: _selectedCity,
       fullAddress: _addressController.text,
       password: widget.personalInfo['password'],
-          image: imageFile,
-        );
+      image: imageToSend, // Send the actual File object
+    );
   }
 
   @override
@@ -318,7 +399,7 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
                     ),
                     const SizedBox(height: 20),
 
-                    // Add Photo Button/Display (Added after full address)
+                    // Add Photo Button/Display (Updated with actual image preview)
                     Center(
                       child: GestureDetector(
                         onTap: _pickImage,
@@ -332,46 +413,20 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
                               width: 2,
                               style: BorderStyle.solid,
                             ),
-                            color: _selectedImagePath != null
+                            color: _selectedImage != null
                                 ? Colors.grey.shade100
                                 : kPrimaryColor.withOpacity(0.05),
                           ),
-                          child: _selectedImagePath != null
+                          child: _selectedImage != null
                               ? Stack(
                             children: [
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(10),
-                                child: Container(
+                                child: Image.file(
+                                  _selectedImage!,
                                   width: double.infinity,
                                   height: double.infinity,
-                                  color: Colors.grey.shade200,
-                                  child: const Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.check_circle,
-                                        size: 48,
-                                        color: Colors.green,
-                                      ),
-                                      SizedBox(height: 8),
-                                      Text(
-                                        'Photo Selected',
-                                        style: TextStyle(
-                                          color: Colors.green,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      SizedBox(height: 4),
-                                      Text(
-                                        'Tap to change photo',
-                                        style: TextStyle(
-                                          color: Colors.grey,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                  fit: BoxFit.cover,
                                 ),
                               ),
                               Positioned(
@@ -382,11 +437,41 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
                                   decoration: const BoxDecoration(
                                     color: Colors.white,
                                     shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black26,
+                                        blurRadius: 4,
+                                      ),
+                                    ],
                                   ),
                                   child: const Icon(
                                     Icons.edit,
                                     size: 16,
                                     color: kPrimaryColor,
+                                  ),
+                                ),
+                              ),
+                              // Optional: Add a semi-transparent overlay with "Tap to change" text
+                              Positioned(
+                                bottom: 0,
+                                left: 0,
+                                right: 0,
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withOpacity(0.7),
+                                    borderRadius: const BorderRadius.only(
+                                      bottomLeft: Radius.circular(10),
+                                      bottomRight: Radius.circular(10),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'Tap to change photo',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                    ),
+                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                               ),

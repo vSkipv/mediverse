@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import '../../data/repositories/ai_model_repository.dart';
+import '../../data/models/prediction_response.dart';
 
 class PredictionModelsScreen1 extends StatefulWidget {
   @override
@@ -10,6 +12,83 @@ class PredictionModelsScreen1 extends StatefulWidget {
 class _PredictionModelsScreenState extends State<PredictionModelsScreen1> {
   File? _selectedImage;
   final ImagePicker _picker = ImagePicker();
+  final AiModelRepository _repository = AiModelRepository();
+  bool _isLoading = false;
+  PredictionResponse? _predictionResult;
+
+  Future<void> _analyzeImage() async {
+    if (_selectedImage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please select an image first'),
+          backgroundColor: Colors.orange,
+          duration: Duration(seconds: 3),
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _predictionResult = null;
+    });
+
+    try {
+      final result = await _repository.uploadMriImage(_selectedImage!);
+      setState(() {
+        _predictionResult = result;
+      });
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Analysis completed successfully!'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      String errorMessage = e.toString();
+      // Remove the "Exception: " prefix if it exists
+      if (errorMessage.startsWith('Exception: ')) {
+        errorMessage = errorMessage.substring(11);
+      }
+      
+      // Show error in a more prominent way
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Error Analyzing Image',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              SizedBox(height: 4),
+              Text(errorMessage),
+            ],
+          ),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 5),
+          action: SnackBarAction(
+            label: 'Dismiss',
+            textColor: Colors.white,
+            onPressed: () {
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            },
+          ),
+        ),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   Future<void> _pickImage() async {
     showModalBottomSheet(
@@ -180,98 +259,98 @@ class _PredictionModelsScreenState extends State<PredictionModelsScreen1> {
                 ),
                 child: _selectedImage == null
                     ? Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'MRI brain tumor classification',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    SizedBox(height: 20),
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        Icons.upload_file,
-                        color: Color(0xFF2563EB),
-                        size: 40,
-                      ),
-                    ),
-                    SizedBox(height: 16),
-                    Text(
-                      'Upload Image here',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                )
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'MRI brain tumor classification',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          SizedBox(height: 20),
+                          Container(
+                            width: 80,
+                            height: 80,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(
+                              Icons.upload_file,
+                              color: Color(0xFF2563EB),
+                              size: 40,
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            'Upload Image here',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      )
                     : Stack(
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      height: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        image: DecorationImage(
-                          image: FileImage(_selectedImage!),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      top: 8,
-                      left: 8,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Color(0xFF2563EB),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          'MRI brain tumor classification',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                        children: [
+                          Container(
+                            width: double.infinity,
+                            height: double.infinity,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                              image: DecorationImage(
+                                image: FileImage(_selectedImage!),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: GestureDetector(
-                        onTap: _removeImage,
-                        child: Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
+                          Positioned(
+                            top: 8,
+                            left: 8,
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Color(0xFF2563EB),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                'MRI brain tumor classification',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
                           ),
-                          child: Icon(
-                            Icons.close,
-                            color: Colors.white,
-                            size: 20,
+                          Positioned(
+                            top: 8,
+                            right: 8,
+                            child: GestureDetector(
+                              onTap: _removeImage,
+                              child: Container(
+                                width: 32,
+                                height: 32,
+                                decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
               ),
             ),
             if (_selectedImage != null) ...[
@@ -279,16 +358,7 @@ class _PredictionModelsScreenState extends State<PredictionModelsScreen1> {
               Container(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Add your prediction logic here
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Starting prediction analysis...'),
-                        backgroundColor: Color(0xFF2563EB),
-                        duration: Duration(seconds: 2),
-                      ),
-                    );
-                  },
+                  onPressed: _isLoading ? null : _analyzeImage,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF2563EB),
                     foregroundColor: Colors.white,
@@ -298,13 +368,22 @@ class _PredictionModelsScreenState extends State<PredictionModelsScreen1> {
                     ),
                     elevation: 2,
                   ),
-                  child: Text(
-                    'Analyze Image',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  child: _isLoading
+                      ? SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : Text(
+                          'Analyze Image',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
               ),
               SizedBox(height: 16),
@@ -321,7 +400,7 @@ class _PredictionModelsScreenState extends State<PredictionModelsScreen1> {
                     ),
                   ),
                   child: Text(
-                    'Upload Different Image',
+                    'Save Data',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -329,9 +408,79 @@ class _PredictionModelsScreenState extends State<PredictionModelsScreen1> {
                   ),
                 ),
               ),
+              if (_predictionResult != null) ...[
+                SizedBox(height: 24),
+                Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Prediction Results',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF2563EB),
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      _buildResultRow('Model', _predictionResult!.model),
+                      SizedBox(height: 12),
+                      _buildResultRow('Predicted Label', _predictionResult!.predictedLabel),
+                      SizedBox(height: 12),
+                      _buildResultRow(
+                        'Confidence',
+                        '${(_predictionResult!.confidence * 100).toStringAsFixed(2)}%',
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ],
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildResultRow(String label, String value) {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF666666),
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF2563EB),
+            ),
+          ),
+        ],
       ),
     );
   }

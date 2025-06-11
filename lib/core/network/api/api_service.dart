@@ -79,6 +79,8 @@ class ApiService {
           validateStatus: (status) {
             return status! < 500;
           },
+          followRedirects: true,
+          maxRedirects: 5,
         ),
       );
 
@@ -106,6 +108,8 @@ class ApiService {
     } on DioException catch (e) {
       print('DioError: ${e.message}');
       print('DioError Response: ${e.response?.data}');
+      print('DioError Status: ${e.response?.statusCode}');
+      print('DioError Headers: ${e.response?.headers}');
       
       if (e.response?.data != null) {
         String errorMessage;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mediverse/core/utililes/cached_sp.dart';
+import 'package:mediverse/features/MainScreen/presentaion/views/MainScreen_view.dart';
 
 import '../../../Diseasespage/presention/views/Diesases.dart';
 import '../../../Login/presentaion/views/LoginScreen.dart';
@@ -98,7 +99,7 @@ class ProfileScreen extends StatelessWidget {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) =>
-                                            const LoginScreen(),
+                                             MainScreen(),
                                       ),
                                     );
                                   },

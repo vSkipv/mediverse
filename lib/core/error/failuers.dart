@@ -36,7 +36,7 @@ class ServerFailuer extends Faliuer {
         return ServerFailuer("Unexpected certificate error.");
       case DioExceptionType.connectionError:
         return ServerFailuer("No Internet Connection.");
-      }
+    }
   }
 
   factory ServerFailuer.fromResponse(int? statusCode, dynamic response) {
@@ -44,26 +44,41 @@ class ServerFailuer extends Faliuer {
       return ServerFailuer("Unexpected error occurred, please try again later.");
     }
 
-    // Extract error message from API response
-    String errorMessage = "Unexpected error occurred";
+    // Handle validation errors
     if (response is Map<String, dynamic>) {
-      errorMessage = response["error"]?["message"] ??
-          response["msg"] ??
-          response["message"] ??
-          jsonEncode(response); // Fallback: return full response as string
-    } else if(response is String){
-      if (response.contains("<html") || response.contains("<!DOCTYPE html>")) {
-        errorMessage = "Error occurred on server side";
-      } else {
-        errorMessage = response; // Plain text error message
+      // Check for validation errors
+      if (response.containsKey('errors')) {
+        final errors = response['errors'];
+        if (errors is Map && errors.isNotEmpty) {
+          // Get the first error message
+          final firstError = errors.values.first;
+          if (firstError is List && firstError.isNotEmpty) {
+            return ServerFailuer(firstError.first.toString());
+          } else {
+            return ServerFailuer(firstError.toString());
+          }
+        }
       }
-
-    }else{
-      errorMessage = response.toString();
-
+      
+      // Handle other types of error messages
+      if (response.containsKey('message')) {
+        return ServerFailuer(response['message']);
+      } else if (response.containsKey('error')) {
+        return ServerFailuer(response['error']);
+      } else if (response.containsKey('detail')) {
+        return ServerFailuer(response['detail']);
+      }
     }
 
-    return ServerFailuer(errorMessage);
-  }
+    // Handle string responses
+    if (response is String) {
+      if (response.contains("<html") || response.contains("<!DOCTYPE html>")) {
+        return ServerFailuer("Error occurred on server side");
+      }
+      return ServerFailuer(response);
+    }
 
+    // Fallback
+    return ServerFailuer(response.toString());
+  }
 }

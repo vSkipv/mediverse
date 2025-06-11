@@ -58,4 +58,4 @@ class AppointmentRepositoryImpl implements AppointmentRepository {
       throw Exception('Failed to search doctors by name: $e');
     }
   }
-} 
+}

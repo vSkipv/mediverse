@@ -183,9 +183,22 @@ class _AppointmentScreenState extends State<AppointmentScreen2> {
                               width: 80,
                               height: 80,
                               color: Colors.grey[300],
-                              child: Image.network(
-                                'https://placehold.co/80x80',
+                              child: doctor.image != null && doctor.image!.isNotEmpty
+                                  ? Image.network(
+                                doctor.image!,
                                 fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Icon(
+                                    Icons.person,
+                                    size: 40,
+                                    color: Colors.grey[600],
+                                  );
+                                },
+                              )
+                                  : Icon(
+                                Icons.person,
+                                size: 40,
+                                color: Colors.grey[600],
                               ),
                             ),
                           ),
@@ -224,22 +237,22 @@ class _AppointmentScreenState extends State<AppointmentScreen2> {
                                       radius: 16,
                                       child: doctor.image == null
                                           ? const Icon(Icons.message,
-                                              size: 16, color: Colors.blue)
+                                          size: 16, color: Colors.blue)
                                           : ClipOval(
-                                              child: Image.network(
-                                                "http://projectmetaverse.runasp.net/images/fbf85cf9.jpg${doctor.image}",
-                                                width: 32,
-                                                height: 32,
-                                                fit: BoxFit.cover,
-                                                errorBuilder: (context, error,
-                                                    stackTrace) {
-                                                  return const Icon(
-                                                      Icons.message,
-                                                      size: 16,
-                                                      color: Colors.blue);
-                                                },
-                                              ),
-                                            ),
+                                        child: Image.network(
+                                          doctor.image!,
+                                          width: 32,
+                                          height: 32,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (context, error,
+                                              stackTrace) {
+                                            return const Icon(
+                                                Icons.message,
+                                                size: 16,
+                                                color: Colors.blue);
+                                          },
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -460,30 +473,30 @@ class _AppointmentScreenState extends State<AppointmentScreen2> {
                               onPressed: state is ReservationLoading
                                   ? null
                                   : () async {
-                                      final selectedTime = timeSlots[selectedTimeIndex];
-                                      final selectedDay = dateSlots[selectedDateIndex];
-                                      
-                                      // Parse the selected date and time
-                                      final dateParts = selectedDay.split(' ');
-                                      final timeParts = selectedTime.split(' ');
-                                      final hour = int.parse(timeParts[0].split('.')[0]);
-                                      final minute = int.parse(timeParts[0].split('.')[1]);
-                                      final isPM = timeParts[1] == 'PM';
-                                      
-                                      final reservationDate = DateTime(
-                                        selectedDate.year,
-                                        selectedDate.month,
-                                        selectedDate.day,
-                                        isPM ? hour + 12 : hour,
-                                        minute,
-                                      );
+                                final selectedTime = timeSlots[selectedTimeIndex];
+                                final selectedDay = dateSlots[selectedDateIndex];
 
-                                      _reservationCubit.makeReservation(
-                                        patientID: await CachedData.getData(Constant.id), // Replace with actual patient ID
-                                        doctorID: widget.doctorId,
-                                        reservationDate: reservationDate,
-                                      );
-                                    },
+                                // Parse the selected date and time
+                                final dateParts = selectedDay.split(' ');
+                                final timeParts = selectedTime.split(' ');
+                                final hour = int.parse(timeParts[0].split('.')[0]);
+                                final minute = int.parse(timeParts[0].split('.')[1]);
+                                final isPM = timeParts[1] == 'PM';
+
+                                final reservationDate = DateTime(
+                                  selectedDate.year,
+                                  selectedDate.month,
+                                  selectedDate.day,
+                                  isPM ? hour + 12 : hour,
+                                  minute,
+                                );
+
+                                _reservationCubit.makeReservation(
+                                  patientID: await CachedData.getData(Constant.id), // Replace with actual patient ID
+                                  doctorID: widget.doctorId,
+                                  reservationDate: reservationDate,
+                                );
+                              },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.blue[600],
                                 shape: RoundedRectangleBorder(
@@ -493,13 +506,13 @@ class _AppointmentScreenState extends State<AppointmentScreen2> {
                               child: state is ReservationLoading
                                   ? const CircularProgressIndicator(color: Colors.white)
                                   : const Text(
-                                      'Book an Appointment',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
-                                    ),
+                                'Book an Appointment',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
                           );
                         },
