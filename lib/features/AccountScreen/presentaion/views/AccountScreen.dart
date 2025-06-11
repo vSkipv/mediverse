@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:mediverse/core/utililes/cached_sp.dart';
 
 import '../../../Diseasespage/presention/views/Diesases.dart';
+import '../../../Login/presentaion/views/LoginScreen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -90,11 +92,14 @@ class ProfileScreen extends StatelessWidget {
                                 ),
                                 TextButton(
                                   onPressed: () {
-                                    // Implement logout functionality here
+                                    CachedData.removeToken();
                                     Navigator.pop(context); // Close dialog
-                                    // TODO: Implement actual logout logic
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Logged out successfully')),
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const LoginScreen(),
+                                      ),
                                     );
                                   },
                                   child: const Text('LOG OUT'),

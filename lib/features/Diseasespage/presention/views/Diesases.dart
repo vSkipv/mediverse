@@ -37,12 +37,7 @@ class MedicalInformationScreen extends StatefulWidget {
 }
 
 class _MedicalInformationScreenState extends State<MedicalInformationScreen> {
-  // Replace single selection with map of parent checkboxes
-  Map<String, bool> parentSelection = {
-    'Father': false,
-    'Mother': false,
-  };
-
+  String? selectedParent;
   List<String?> selectedDiseases = [null]; // List to store multiple disease selections
   String? selectedBirthType;
   final TextEditingController additionalInfoController = TextEditingController();
@@ -83,13 +78,6 @@ class _MedicalInformationScreenState extends State<MedicalInformationScreen> {
     }
   }
 
-  // Toggle parent checkbox
-  void toggleParentCheckbox(String parent) {
-    setState(() {
-      parentSelection[parent] = !parentSelection[parent]!;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -125,63 +113,95 @@ class _MedicalInformationScreenState extends State<MedicalInformationScreen> {
                   Row(
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.arrow_back_ios, color: Colors.blue),
+                        icon: const Icon(Icons.arrow_back_ios,
+                            color: Colors.blue),
                         onPressed: () {
                           // Handle back navigation
                           Navigator.pop(context);
                         },
                       ),
-                      const SizedBox(width: 8),
-                      const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Select Disease',
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.blue,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Select Disease',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.blue,
+                              ),
                             ),
-                          ),
-                          Text(
-                            'medical Information',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.black54,
+                            Text(
+                              'medical Information',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black54,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
+                      SizedBox(width: 48), // Balance the back button width
                     ],
                   ),
-              
+
                   const SizedBox(height: 24),
-              
-                  // Parent selection checkboxes
+
+                  // Parent selection radio buttons
                   const Text(
-                    'Select affected parent(s)',
+                    'Select affected parent',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 12),
-              
-                  // Parent checkboxes
-                  Row(
+
+                  // Clean radio buttons for parent selection
+                  Column(
                     children: [
-                      Expanded(
-                        child: _buildParentCheckbox('Father'),
+                      RadioListTile<String>(
+                        title: const Text('Father'),
+                        value: 'Father',
+                        groupValue: selectedParent,
+                        onChanged: (String? value) {
+                          setState(() {
+                            selectedParent = value;
+                          });
+                        },
+                        activeColor: const Color(0xff0E64D2),
+                        contentPadding: EdgeInsets.zero,
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _buildParentCheckbox('Mother'),
+                      RadioListTile<String>(
+                        title: const Text('Mother'),
+                        value: 'Mother',
+                        groupValue: selectedParent,
+                        onChanged: (String? value) {
+                          setState(() {
+                            selectedParent = value;
+                          });
+                        },
+                        activeColor: const Color(0xff0E64D2),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                      RadioListTile<String>(
+                        title: const Text('Both'),
+                        value: 'Both',
+                        groupValue: selectedParent,
+                        onChanged: (String? value) {
+                          setState(() {
+                            selectedParent = value;
+                          });
+                        },
+                        activeColor: const Color(0xff0E64D2),
+                        contentPadding: EdgeInsets.zero,
                       ),
                     ],
                   ),
-              
+
                   const SizedBox(height: 24),
-              
+
                   // Disease selection
                   const Text(
                     'Select one or more inherited diseases',
@@ -191,7 +211,7 @@ class _MedicalInformationScreenState extends State<MedicalInformationScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-              
+
                   // Multiple disease dropdowns
                   ...List.generate(selectedDiseases.length, (index) {
                     return Column(
@@ -213,23 +233,10 @@ class _MedicalInformationScreenState extends State<MedicalInformationScreen> {
                       ],
                     );
                   }),
-              
-                  const SizedBox(height: 12),
-                  TextButton.icon(
-                    onPressed: addAnotherDiseaseField,
-                    icon: const Icon(Icons.add, size: 20, color: Colors.black54),
-                    label: const Text(
-                      'Add More',
-                      style: TextStyle(color: Colors.black54, fontSize: 16),
-                    ),
-                    style: TextButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      alignment: Alignment.centerLeft,
-                    ),
-                  ),
-              
+
+
                   const SizedBox(height: 18),
-              
+
                   // Additional information
                   const Text(
                     'Add more additional information',
@@ -255,25 +262,17 @@ class _MedicalInformationScreenState extends State<MedicalInformationScreen> {
                     ),
                     maxLines: 3,
                   ),
-              
+
                   const SizedBox(height: 18),
 
-                  SizedBox(height: 24),
-              
+                  const SizedBox(height: 24),
+
                   // Bottom buttons
                   ElevatedButton(
                     onPressed: () async {
-                      // Get selected parent
-                      String? selectedParent;
-                      parentSelection.forEach((parent, isSelected) {
-                        if (isSelected) {
-                          selectedParent = parent;
-                        }
-                      });
-
                       // Get selected disease
                       String? selectedDisease = selectedDiseases.firstWhere(
-                        (disease) => disease != null,
+                            (disease) => disease != null,
                         orElse: () => null,
                       );
 
@@ -306,74 +305,14 @@ class _MedicalInformationScreenState extends State<MedicalInformationScreen> {
                       style: TextStyle(fontSize: 16, color: Colors.white),
                     ),
                   ),
-              
+
                   const SizedBox(height: 16),
-              
+
                   const SizedBox(height: 16),
                 ],
               ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  // New parent checkbox widget
-  Widget _buildParentCheckbox(String text) {
-    final isSelected = parentSelection[text] ?? false;
-
-    return InkWell(
-      onTap: () => toggleParentCheckbox(text),
-      child: Container(
-        height: 50,
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xff0E64D2) : Colors.white,
-          border: Border.all(
-            color: isSelected ? const Color(0xff0E64D2) : Colors.grey[300]!,
-            width: isSelected ? 2 : 1,
-          ),
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: isSelected ? [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.2),
-              spreadRadius: 1,
-              blurRadius: 2,
-              offset: const Offset(0, 1),
-            ),
-          ] : null,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Checkbox
-            SizedBox(
-              width: 24,
-              height: 24,
-              child: Checkbox(
-                value: isSelected,
-                onChanged: (_) => toggleParentCheckbox(text),
-                activeColor: Colors.white,
-                checkColor: const Color(0xff0E64D2),
-                side: BorderSide(
-                  color: isSelected ? Colors.white : Colors.grey,
-                  width: 1.5,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-            ),
-            const SizedBox(width: 6),
-            Text(
-              text,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? Colors.white : Colors.black,
-              ),
-            ),
-          ],
         ),
       ),
     );
