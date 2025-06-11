@@ -8,6 +8,7 @@ import '../../../AccountScreen/presentaion/views/AccountScreen.dart';
 import '../../../AppointmentIcon/presention/views/AppointmentPage.dart';
 import '../../../../constants.dart' as Constant;
 import '../../../HospitalList/presentaion/views/HospitalPage.dart';
+import '../../../Ui-for-Ai-Models/presentaion/views/Ai-model.dart';
 import '../../data/repository/appointment_repository.dart';
 import '../../presention/cubit/appointment_cubit.dart';
 import '../../../../core/network/api/api_service.dart';
@@ -43,7 +44,7 @@ class _MedicalAppHomePageState extends State<MedicalAppHomePage> {
   final List<Widget> _pages = [
     HomePage(),
     ActivityPage(),
-    PredictionsPage(),
+    PredictionModelsScreen(),
     // We'll handle the Account tab differently
     Container(), // Placeholder for the fourth tab
   ];
@@ -576,7 +577,7 @@ class MedicinePage extends StatelessWidget {
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 10),
-            Text('View and manage your medications here.'),
+            Text('This Feature is under development. will in next update.'),
           ],
         ),
       ),

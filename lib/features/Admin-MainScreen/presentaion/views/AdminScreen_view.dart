@@ -196,18 +196,6 @@ class _AdminScreenState extends State<AdminScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     _buildBottomNavItem(Icons.home, 'HOME', true, () {}),
-                    _buildBottomNavItem(Icons.bar_chart, 'Reports', false, () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => ReportsPage()),
-                      );
-                    }),
-                    _buildBottomNavItem(Icons.headset_mic, 'Support', false, () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => SupportPage()),
-                      );
-                    }),
                     _buildBottomNavItem(Icons.account_circle, 'ACCOUNT', false, () {
                       Navigator.push(
                         context,
@@ -846,21 +834,6 @@ class _AccountPageState extends State<AccountPage> {
               SizedBox(height: 30),
 
               // Account Options
-              _buildAccountOption(
-                icon: Icons.edit,
-                title: 'Edit Profile',
-                onTap: () {},
-              ),
-              _buildAccountOption(
-                icon: Icons.settings,
-                title: 'Settings',
-                onTap: () {},
-              ),
-              _buildAccountOption(
-                icon: Icons.help_outline,
-                title: 'Help & Support',
-                onTap: () {},
-              ),
               _buildAccountOption(
                 icon: Icons.logout,
                 title: 'Logout',
