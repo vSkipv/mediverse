@@ -11,7 +11,6 @@ class DoctorAdmin {
   final String country;
   final String fullAddress;
   final String description;
-  final File? image;
 
   DoctorAdmin({
     required this.id,
@@ -24,7 +23,6 @@ class DoctorAdmin {
     required this.country,
     required this.fullAddress,
     required this.description,
-    required this.image,
   });
 
   factory DoctorAdmin.fromJson(Map<String, dynamic> json) {
@@ -39,7 +37,6 @@ class DoctorAdmin {
       country: json['country'] ?? '',
       fullAddress: json['fullAddress'] ?? '',
       description: json['description'] ?? '',
-      image: json['image'] ?? '',
     );
   }
 } 

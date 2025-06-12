@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mediverse/core/error/failuers.dart';
 import 'package:mediverse/features/Sginup/presentaion/controller/cubit/register_state.dart';
 
 import '../../../data/repositories/register_repository.dart';
@@ -39,6 +40,8 @@ class RegisterCubit extends Cubit<RegisterState> {
         image: image,
       );
       emit(RegisterSuccess(response));
+    } on ServerFailure catch (failure) {
+      emit(RegisterError(failure.errMessage));
     } catch (e) {
       emit(RegisterError(e.toString()));
     }

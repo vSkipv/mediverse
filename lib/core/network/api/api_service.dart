@@ -151,6 +151,10 @@ class ApiService {
         }
       }
 
+      print('Making POST request to: $_baseUrl$endpoint');
+      print('Request data: $data');
+      print('Headers: ${token == true ? 'Bearer $authToken' : 'No token'}');
+
       final response = await _dio.post(
         endpoint,
         data: data,
@@ -161,21 +165,51 @@ class ApiService {
             if (token == true) 'Authorization': 'Bearer $authToken',
           },
           responseType: responseType ?? ResponseType.json,
+          validateStatus: (status) {
+            return status! < 500;
+          },
         ),
         onSendProgress: onSendProgress,
       );
 
+      print('Response status: ${response.statusCode}');
+      print('Response data: ${response.data}');
+      print('Response headers: ${response.headers}');
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         return response.data;
       } else {
-        throw ServerFailuer.fromResponse(response.statusCode, response.data);
+        String errorMessage = 'Server error';
+        if (response.data != null) {
+          if (response.data is Map) {
+            errorMessage = response.data['message'] ?? response.data['error'] ?? response.data.toString();
+          } else if (response.data is String) {
+            errorMessage = response.data;
+          }
+        }
+        throw ServerFailure(
+            'Server returned ${response.statusCode}: $errorMessage');
       }
     } on DioException catch (dioError) {
       print('DioError: ${dioError.message}');
       print('DioError Response: ${dioError.response?.data}');
-      throw ServerFailuer.fromDioError(dioError);
+      print('DioError Status: ${dioError.response?.statusCode}');
+      print('DioError Headers: ${dioError.response?.headers}');
+      print('DioError Request Data: ${dioError.requestOptions.data}');
+      print('DioError Request Headers: ${dioError.requestOptions.headers}');
+      
+      String errorMessage = 'Network error';
+      if (dioError.response?.data != null) {
+        if (dioError.response?.data is Map) {
+          errorMessage = dioError.response?.data['message'] ?? dioError.response?.data['error'] ?? dioError.response?.data.toString() ?? errorMessage;
+        } else if (dioError.response?.data is String) {
+          errorMessage = dioError.response?.data;
+        }
+      }
+      throw ServerFailure('Request failed: $errorMessage');
     } catch (e) {
-      throw ServerFailuer("Unexpected error: ${e.toString()}");
+      print('Unexpected error: $e');
+      throw ServerFailure("Unexpected error: ${e.toString()}");
     }
   }
 

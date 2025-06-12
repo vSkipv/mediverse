@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:dio/dio.dart';
 
+import '../../../../core/network/api/api_service.dart';
 import '../../../../core/utililes/cached_sp.dart';
 import '../../../MainScreen/presentaion/views/MainScreen_view.dart';
 import '../../../appoitments_in_Doctor/presention/views/state_appoitments.dart';
-import '../../../view_patient_record/presentaion/views/view_patient_record.dart';
 import '../../../../constants.dart' as Constant;
+import '../../data/repositories/patient_repository.dart';
+import '../cubit/patient_cubit.dart';
 
 void main() {
   runApp(MyApp());
@@ -38,8 +42,8 @@ class _MedicalDashboardState extends State<MedicalDashboard> {
     // TODO: implement initState
     super.initState();
     _loadUserData();
-
   }
+
   Future<void> _loadUserData() async {
     final name = await CachedData.getData(Constant.name);
     final id = await CachedData.getData(Constant.id);
@@ -47,9 +51,10 @@ class _MedicalDashboardState extends State<MedicalDashboard> {
       userName = name;
       userId = id.toString();
       print('User Name: $userName');
-      print("user id $userId" );
+      print("user id $userId");
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -122,55 +127,46 @@ class _MedicalDashboardState extends State<MedicalDashboard> {
 
                     SizedBox(height: 30),
 
-                    // View Appointment Button
-                    Container(
-                      width: double.infinity,
-                      height: 70,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Color(0xff0E64D2), Color(0xff0E64D2)],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                        ),
-                        borderRadius: BorderRadius.circular(35),
-                      ),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(35),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => AppointmentsStatePage()),
-                            );
-                          },
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 20),
-                            child: Row(
-                              children: [
-                                Container(
-                                  padding: EdgeInsets.all(8),
-                                  child: Icon(
-                                    Icons.calendar_today,
-                                    color: Colors.white,
-                                    size: 24,
-                                  ),
-                                ),
-                                SizedBox(width: 15),
-                                Text(
-                                  'View appointment state',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                    // // View Appointment Button
+                    // Container(
+                    //   width: double.infinity,
+                    //   height: 70,
+                    //   decoration: BoxDecoration(
+                    //     gradient: LinearGradient(
+                    //       colors: [Color(0xff0E64D2), Color(0xff0E64D2)],
+                    //       begin: Alignment.centerLeft,
+                    //       end: Alignment.centerRight,
+                    //     ),
+                    //     borderRadius: BorderRadius.circular(35),
+                    //   ),
+                    //   child: Material(
+                    //     color: Colors.transparent,
+                    //     child: InkWell(
+                    //       borderRadius: BorderRadius.circular(35),
+                    //       onTap: () {
+                    //         Navigator.push(
+                    //           context,
+                    //           MaterialPageRoute(builder: (context) => AppointmentsStatePage()),
+                    //         );
+                    //       },
+                    //       child: Padding(
+                    //         padding: EdgeInsets.symmetric(horizontal: 20),
+                    //         child: Row(
+                    //           children: [
+                    //             Container(
+                    //               padding: EdgeInsets.all(8),
+                    //               child: Icon(
+                    //                 Icons.calendar_today,
+                    //                 color: Colors.white,
+                    //                 size: 24,
+                    //               ),
+                    //             ),
+                    //           ],
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
 
                     SizedBox(height: 20),
 
@@ -193,7 +189,7 @@ class _MedicalDashboardState extends State<MedicalDashboard> {
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => PatientRecordView()),
+                              MaterialPageRoute(builder: (context) => PatientRecordPage()),
                             );
                           },
                           child: Padding(
@@ -247,8 +243,6 @@ class _MedicalDashboardState extends State<MedicalDashboard> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     _buildBottomNavItem(context, Icons.home, 'HOME', true),
-                    _buildBottomNavItem(context, Icons.assignment, 'Reports', false),
-                    _buildBottomNavItem(context, Icons.headset_mic, 'Support', false),
                     _buildBottomNavItem(context, Icons.account_circle, 'ACCOUNT', false),
                   ],
                 ),
@@ -355,44 +349,336 @@ class AppointmentPage extends StatelessWidget {
 }
 
 // Patient Record Page
-class PatientRecordPage extends StatelessWidget {
+class PatientRecordPage extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        title: Text('Patient Records'),
-        backgroundColor: Color(0xff0E64D2),
-        foregroundColor: Colors.white,
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.description,
-              size: 100,
-              color: Color(0xff0E64D2),
-            ),
-            SizedBox(height: 20),
-            Text(
-              'Patient Records',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
+  _PatientRecordPageState createState() => _PatientRecordPageState();
+}
+
+class _PatientRecordPageState extends State<PatientRecordPage> {
+  final TextEditingController _nationalIdController = TextEditingController();
+  final TextEditingController _diagnosisController = TextEditingController();
+  final TextEditingController _treatmentController = TextEditingController();
+  final TextEditingController _doctorNameController = TextEditingController();
+  final TextEditingController _hospitalNameController = TextEditingController();
+  late PatientCubit _patientCubit;
+  String? userId;
+
+  @override
+  void initState() {
+    super.initState();
+    final dio = Dio();
+    final apiService = ApiService(dio);
+    final repository = PatientRepositoryImpl(apiService);
+    _patientCubit = PatientCubit(repository);
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final id = await CachedData.getData(Constant.id);
+    setState(() {
+      userId = id.toString();
+    });
+  }
+
+  @override
+  void dispose() {
+    _nationalIdController.dispose();
+    _diagnosisController.dispose();
+    _treatmentController.dispose();
+    _doctorNameController.dispose();
+    _hospitalNameController.dispose();
+    _patientCubit.close();
+    super.dispose();
+  }
+
+  void _showAddMedicalCaseDialog(BuildContext context, String patientId) {
+    showDialog(
+      context: context,
+      builder: (context) => BlocListener<PatientCubit, PatientState>(
+        listener: (context, state) {
+          if (state is MedicalCaseAdded) {
+            Navigator.pop(context);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Medical case added successfully'),
+                backgroundColor: Colors.green,
               ),
-            ),
-            SizedBox(height: 10),
-            Text(
-              'Access patient medical records',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[600],
+            );
+          } else if (state is MedicalCaseError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.red,
               ),
+            );
+          }
+        },
+        child: AlertDialog(
+          title: Text('Add Medical Case'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: _diagnosisController,
+                  decoration: InputDecoration(
+                    labelText: 'Diagnosis',
+                    border: OutlineInputBorder(),
+                    hintText: 'Enter patient diagnosis',
+                  ),
+                  maxLines: 3,
+                ),
+                SizedBox(height: 16),
+                TextField(
+                  controller: _treatmentController,
+                  decoration: InputDecoration(
+                    labelText: 'Prescription',
+                    border: OutlineInputBorder(),
+                    hintText: 'Enter prescription details',
+                  ),
+                  maxLines: 3,
+                ),
+                SizedBox(height: 16),
+                TextField(
+                  controller: _doctorNameController,
+                  decoration: InputDecoration(
+                    labelText: 'Birth Type',
+                    border: OutlineInputBorder(),
+                    hintText: 'Enter birth type',
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _diagnosisController.clear();
+                _treatmentController.clear();
+                _doctorNameController.clear();
+              },
+              child: Text('Cancel'),
+            ),
+            BlocBuilder<PatientCubit, PatientState>(
+              builder: (context, state) {
+                return ElevatedButton(
+                  onPressed: state is MedicalCaseAdding
+                      ? null
+                      : () {
+                    if (userId == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Doctor ID not found')),
+                      );
+                      return;
+                    }
+
+                    if (_diagnosisController.text.isEmpty ||
+                        _treatmentController.text.isEmpty ||
+                        _doctorNameController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Please fill all fields')),
+                      );
+                      return;
+                    }
+
+                    _patientCubit.addMedicalCase(
+                      patientId: patientId,
+                      diagnosis: _diagnosisController.text,
+                      prescription: _treatmentController.text,
+                      doctorId: userId!,
+                      creationDate: DateTime.now().toIso8601String(),
+                      birthtype: _doctorNameController.text,
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xff0E64D2),
+                    foregroundColor: Colors.white,
+                  ),
+                  child: state is MedicalCaseAdding
+                      ? SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                      : Text('Add Medical Case'),
+                );
+              },
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => _patientCubit,
+      child: Scaffold(
+        backgroundColor: Colors.grey[50],
+        appBar: AppBar(
+          title: Text('Patient Records'),
+          backgroundColor: Color(0xff0E64D2),
+          foregroundColor: Colors.white,
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              TextField(
+                controller: _nationalIdController,
+                decoration: InputDecoration(
+                  labelText: 'Enter National ID',
+                  border: OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: Icon(Icons.search),
+                    onPressed: () {
+                      if (_nationalIdController.text.isNotEmpty) {
+                        _patientCubit.getPatientByNationalId(_nationalIdController.text);
+                      }
+                    },
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+              Expanded(
+                child: BlocBuilder<PatientCubit, PatientState>(
+                  builder: (context, state) {
+                    if (state is PatientLoading) {
+                      return Center(child: CircularProgressIndicator());
+                    } else if (state is PatientLoaded) {
+                      return SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Card(
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Patient Information',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    SizedBox(height: 16),
+                                    _buildInfoRow('Name',
+                                        '${state.patient.firstName ?? ''} ${state.patient.lastName ?? ''}'),
+                                    _buildInfoRow('National ID',
+                                        state.patient.nationalId),
+                                    _buildInfoRow('Phone', state.patient.phoneNumber),
+                                    _buildInfoRow('Email', state.patient.email),
+                                    _buildInfoRow(
+                                        'Address', state.patient.fullAddress),
+                                    _buildInfoRow(
+                                        'age', state.patient.age),
+                                    _buildInfoRow(
+                                        'Gender', state.patient.gender),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 16),
+                            ElevatedButton.icon(
+                              onPressed: () => _showAddMedicalCaseDialog(context, state.patient.id!),
+                              icon: Icon(Icons.add),
+                              label: Text('Add Medical Case'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xff0E64D2),
+                                foregroundColor: Colors.white,
+                                minimumSize: Size(double.infinity, 50),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    } else if (state is PatientError) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.error_outline, size: 48, color: Colors.red),
+                            SizedBox(height: 16),
+                            Text(
+                              'Error',
+                              style: TextStyle(fontSize: 18),
+                            ),
+                            Text(
+                              state.message,
+                              style: TextStyle(color: Colors.red),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      );
+                    } else {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.description,
+                              size: 100,
+                              color: Color(0xff0E64D2),
+                            ),
+                            SizedBox(height: 20),
+                            Text(
+                              'Patient Records',
+                              style: TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              'Enter National ID to view patient records',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String? value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 100,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.grey[700],
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(value ?? ''),
+          ),
+        ],
       ),
     );
   }
@@ -501,8 +787,8 @@ class _AccountPageState extends State<AccountPage> {
     // TODO: implement initState
     super.initState();
     _loadUserData();
-
   }
+
   Future<void> _loadUserData() async {
     final name = await CachedData.getData(Constant.name);
     final id = await CachedData.getData(Constant.id);
@@ -510,9 +796,10 @@ class _AccountPageState extends State<AccountPage> {
       userName = name;
       userId = id.toString();
       print('User Name: $userName');
-      print("user id $userId" );
+      print("user id $userId");
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

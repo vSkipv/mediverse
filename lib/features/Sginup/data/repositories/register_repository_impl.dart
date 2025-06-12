@@ -31,7 +31,7 @@ class RegisterRepositoryImpl implements RegisterRepository {
         'firstName': firstName,
         'lastName': lastName,
         'gender': gender,
-        'phoneNumber': phoneNumber,
+        'Phone': phoneNumber, // Changed from 'phoneNumber' to 'Phone'
         'country': country,
         'city': city,
         'fullAddress': fullAddress,

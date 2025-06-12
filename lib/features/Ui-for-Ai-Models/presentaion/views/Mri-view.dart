@@ -211,6 +211,47 @@ class _PredictionModelsScreenState extends State<PredictionModelsScreen1> {
     });
   }
 
+  Future<void> _savePrediction() async {
+    if (_predictionResult == null || _selectedImage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please analyze an image first'),
+          backgroundColor: Colors.orange,
+          duration: Duration(seconds: 3),
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await _repository.savePrediction(_predictionResult!, _selectedImage!);
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Prediction saved successfully!'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to save prediction: ${e.toString()}'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+        ),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -390,7 +431,7 @@ class _PredictionModelsScreenState extends State<PredictionModelsScreen1> {
               Container(
                 width: double.infinity,
                 child: OutlinedButton(
-                  onPressed: _pickImage,
+                  onPressed: _isLoading ? null : _savePrediction,
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Color(0xFF2563EB),
                     side: BorderSide(color: Color(0xFF2563EB)),
@@ -399,13 +440,22 @@ class _PredictionModelsScreenState extends State<PredictionModelsScreen1> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: Text(
-                    'Save Data',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  child: _isLoading
+                      ? SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2563EB)),
+                          ),
+                        )
+                      : Text(
+                          'Save Data',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
               ),
               if (_predictionResult != null) ...[

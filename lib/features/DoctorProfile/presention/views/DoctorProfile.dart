@@ -183,19 +183,7 @@ class _AppointmentScreenState extends State<AppointmentScreen2> {
                               width: 80,
                               height: 80,
                               color: Colors.grey[300],
-                              child: doctor.image != null && doctor.image!.isNotEmpty
-                                  ? Image.network(
-                                doctor.image!,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Icon(
-                                    Icons.person,
-                                    size: 40,
-                                    color: Colors.grey[600],
-                                  );
-                                },
-                              )
-                                  : Icon(
+                              child: Icon(
                                 Icons.person,
                                 size: 40,
                                 color: Colors.grey[600],
@@ -229,30 +217,15 @@ class _AppointmentScreenState extends State<AppointmentScreen2> {
                                     CircleAvatar(
                                       backgroundColor: Colors.green[50],
                                       radius: 16,
-                                      child: const Icon(Icons.phone, size: 16, color: Colors.green),
+                                      child: Icon(Icons.phone,
+                                          size: 16, color: Colors.green),
                                     ),
                                     const SizedBox(width: 8),
                                     CircleAvatar(
                                       backgroundColor: Colors.blue[50],
                                       radius: 16,
-                                      child: doctor.image == null
-                                          ? const Icon(Icons.message,
-                                          size: 16, color: Colors.blue)
-                                          : ClipOval(
-                                        child: Image.network(
-                                          doctor.image!,
-                                          width: 32,
-                                          height: 32,
-                                          fit: BoxFit.cover,
-                                          errorBuilder: (context, error,
-                                              stackTrace) {
-                                            return const Icon(
-                                                Icons.message,
-                                                size: 16,
-                                                color: Colors.blue);
-                                          },
-                                        ),
-                                      ),
+                                      child: Icon(Icons.message,
+                                          size: 16, color: Colors.blue),
                                     ),
                                   ],
                                 ),

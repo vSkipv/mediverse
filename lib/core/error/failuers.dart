@@ -2,83 +2,95 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 
-abstract class Faliuer {
+abstract class Failure {
   final String errMessage;
 
-  const Faliuer(this.errMessage);
+  const Failure(this.errMessage);
+
+  @override
+  String toString() => errMessage;
 }
 
-class ServerFailuer extends Faliuer {
-  ServerFailuer(super.errMessage);
+class ServerFailure extends Failure {
+  ServerFailure(super.errMessage);
 
-  factory ServerFailuer.fromDioError(DioException dioError) {
+  factory ServerFailure.fromDioError(DioException dioError) {
     switch (dioError.type) {
       case DioExceptionType.connectionTimeout:
-        return ServerFailuer("Connection timeout with API Server");
+        return ServerFailure("Connection timeout with API Server");
       case DioExceptionType.sendTimeout:
-        return ServerFailuer("Send timeout with API Server");
+        return ServerFailure("Send timeout with API Server");
       case DioExceptionType.receiveTimeout:
-        return ServerFailuer("Receive timeout with API Server");
+        return ServerFailure("Receive timeout with API Server");
       case DioExceptionType.badResponse:
         if (dioError.response != null) {
-          return ServerFailuer.fromResponse(
+          return ServerFailure.fromResponse(
               dioError.response!.statusCode, dioError.response!.data);
         }
-        return ServerFailuer("Received an invalid response from the server.");
+        return ServerFailure("Received an invalid response from the server.");
       case DioExceptionType.cancel:
-        return ServerFailuer("Request was canceled.");
+        return ServerFailure("Request was canceled.");
       case DioExceptionType.unknown:
         if (dioError.message?.contains("SocketException") ?? false) {
-          return ServerFailuer("No Internet Connection");
+          return ServerFailure("No Internet Connection");
         }
-        return ServerFailuer("Unexpected error, please try again later.");
+        return ServerFailure("Unexpected error, please try again later.");
       case DioExceptionType.badCertificate:
-        return ServerFailuer("Unexpected certificate error.");
+        return ServerFailure("Unexpected certificate error.");
       case DioExceptionType.connectionError:
-        return ServerFailuer("No Internet Connection.");
+        return ServerFailure("No Internet Connection.");
     }
   }
 
-  factory ServerFailuer.fromResponse(int? statusCode, dynamic response) {
+  factory ServerFailure.fromResponse(int? statusCode, dynamic response) {
     if (response == null) {
-      return ServerFailuer("Unexpected error occurred, please try again later.");
+      return ServerFailure(
+          "Unexpected error occurred, please try again later.");
     }
 
     // Handle validation errors
     if (response is Map<String, dynamic>) {
-      // Check for validation errors
+      // Check for validation errors (ASP.NET format)
       if (response.containsKey('errors')) {
         final errors = response['errors'];
         if (errors is Map && errors.isNotEmpty) {
-          // Get the first error message
-          final firstError = errors.values.first;
-          if (firstError is List && firstError.isNotEmpty) {
-            return ServerFailuer(firstError.first.toString());
-          } else {
-            return ServerFailuer(firstError.toString());
+          // Get all error messages and combine them
+          final List<String> errorMessages = [];
+          errors.forEach((field, messages) {
+            if (messages is List && messages.isNotEmpty) {
+              errorMessages.addAll(messages.map((msg) => msg.toString()));
+            } else {
+              errorMessages.add(messages.toString());
+            }
+          });
+
+          if (errorMessages.isNotEmpty) {
+            return ServerFailure(errorMessages.join(', '));
           }
         }
       }
       
       // Handle other types of error messages
       if (response.containsKey('message')) {
-        return ServerFailuer(response['message']);
+        return ServerFailure(response['message']);
       } else if (response.containsKey('error')) {
-        return ServerFailuer(response['error']);
+        return ServerFailure(response['error']);
       } else if (response.containsKey('detail')) {
-        return ServerFailuer(response['detail']);
+        return ServerFailure(response['detail']);
+      } else if (response.containsKey('title')) {
+        return ServerFailure(response['title']);
       }
     }
 
     // Handle string responses
     if (response is String) {
       if (response.contains("<html") || response.contains("<!DOCTYPE html>")) {
-        return ServerFailuer("Error occurred on server side");
+        return ServerFailure("Error occurred on server side");
       }
-      return ServerFailuer(response);
+      return ServerFailure(response);
     }
 
     // Fallback
-    return ServerFailuer(response.toString());
+    return ServerFailure("An error occurred. Please try again.");
   }
 }
